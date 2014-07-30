@@ -30,7 +30,6 @@
 
 namespace Mothership\Environment;
 
-
 use N98\Magento\Command\AbstractMagentoCommand;
 use N98\Util\OperatingSystem;
 use Symfony\Component\Console\Helper\DialogHelper;
@@ -40,8 +39,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Finder\Finder;
+use Mothership\Lib\File;
 
-class SwitchCommand extends AbstractMagentoCommand
+class ImportCommand extends AbstractMagentoCommand
 {
     /**
      * @var SimpleXMLElement
@@ -66,7 +66,7 @@ class SwitchCommand extends AbstractMagentoCommand
     protected function configure()
     {
         $this
-            ->setName('mothership:env:init')
+            ->setName('mothership:env:import')
             ->setDescription('Setzt die Variablen für die Test bzw. Entwicklungsumgebung.')
         ;
     }
@@ -84,33 +84,24 @@ class SwitchCommand extends AbstractMagentoCommand
             $this->writeSection($output, 'Setting Config for Test-Environment');
 
 
-            $config = $this->_loadConfig();
+            $config = File::loadConfig(__DIR__ . '/resource/dump.php');
 
             $table = array();
-            foreach ($config as $storeId => $config) {
-                foreach ($config as $values) {
+            foreach ($config as $path => $data) {
 
-                    $currentValue = \Mage::getStoreConfig($values['path'], $storeId);
-                    \Mage::app()->getConfig()->saveConfig($values['path'], $values['value'], $values['scope'], $storeId);
-                    $table[] = array('path' => $values['path'], 'oldValue' => $currentValue, 'newValue' => $values['value']);
+                foreach ($data as $_config_data) {
+                    $currentValue = \Mage::getStoreConfig($path, $_config_data['scope_id']);
+
+                    //\Mage::app()->getConfig()->saveConfig($values['path'], $values['value'], $values['scope'], $storeId);
+                    $table[] = array (
+                        'path'     => $path,
+                        'old_value' => substr($currentValue, 0, 40),
+                        'new_value' => substr($_config_data['value'], 0, 40)
+                    );
                 }
             }
 
             $this->getHelper('table')->write($output, $table);
         };
-    }
-
-    /**
-     * Load an example configuration file
-     *
-     * @throws \Exception
-     */
-    protected function _loadConfig()
-    {
-        $fileName = __DIR__ . '/resource/development.php';
-        if (!file_exists($fileName)) {
-            throw new \Exception('Missing File: ' . $fileName);
-        }
-        return include_once $fileName;
     }
 }
