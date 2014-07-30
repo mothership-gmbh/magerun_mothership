@@ -1,0 +1,7 @@
+autoloaders:
+  Mothership: %module%/src
+
+commands:
+  customCommands:
+    - Mothership\Environment\ImportCommand
+    - Mothership\Environment\DumpCommand
