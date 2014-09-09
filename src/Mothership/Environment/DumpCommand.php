@@ -30,7 +30,6 @@
 
 namespace Mothership\Environment;
 
-
 use N98\Magento\Command\AbstractMagentoCommand;
 use N98\Util\OperatingSystem;
 use Symfony\Component\Console\Helper\DialogHelper;
@@ -71,7 +70,7 @@ class DumpCommand extends Database
     {
         $this
             ->setName('mothership:env:dump')
-            ->setDescription('Kopiert alle Einstellungen aus der Tabelle core_config_data und speichert sie.')
+            ->setDescription('Dump all settings from the core_config_data and save them in the file settings.php')
         ;
     }
 
@@ -87,7 +86,7 @@ class DumpCommand extends Database
         $this->detectMagento($output);
         if ($this->initMagento()) {
 
-            $this->writeSection($output, 'Datenbankeinstellungen werden exportiert');
+            $this->writeSection($output, 'Import the settings from the settings.php file');
 
             $this->_initConfig($output);
 

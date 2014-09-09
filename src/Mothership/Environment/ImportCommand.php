@@ -67,7 +67,7 @@ class ImportCommand extends AbstractMagentoCommand
     {
         $this
             ->setName('mothership:env:import')
-            ->setDescription('Setzt die Variablen für die Test bzw. Entwicklungsumgebung.')
+            ->setDescription('Overwrite the core_config_data table with all settings defined in the settings.php')
         ;
     }
 
@@ -82,7 +82,6 @@ class ImportCommand extends AbstractMagentoCommand
         if ($this->initMagento()) {
 
             $this->writeSection($output, 'Setting Config for Test-Environment');
-
 
             $config = File::loadConfig(__DIR__ . '/resource/dump.php');
 
