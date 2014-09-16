@@ -58,8 +58,10 @@ class ImportCommand extends AbstractMagentoCommand
      */
     protected $_domain  = null;
 
+    protected $_base_path = '';
+
     /**
-     * Command config
+     * You can pass a env-option like --env=development
      *
      * @return void
      */
@@ -68,6 +70,12 @@ class ImportCommand extends AbstractMagentoCommand
         $this
             ->setName('mothership:env:import')
             ->setDescription('Overwrite the core_config_data table with all settings defined in the settings.php')
+            ->addOption(
+                'env',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'The name of the environment'
+            )
         ;
     }
 
@@ -80,10 +88,43 @@ class ImportCommand extends AbstractMagentoCommand
     {
         $this->detectMagento($output);
         if ($this->initMagento()) {
+            $this->_base_path = __DIR__ . '/resource';
 
-            $this->writeSection($output, 'Setting Config for Test-Environment');
+            /**
+             * If the user sets the option environment variable, then try to find it.
+             */
+            if ($input->getOption('env')) {
+                $file_name = $this->_base_path . '/environment_' . $input->getOption('env') . '.php';
+                $output->writeln('<info>Option "' . $input->getOption('env') . '" set</info>');
+                if (!file_exists($file_name)) {
+                    $output->writeln('<comment>Configuration-File ' . $file_name . ' not found. Please create a configuration file. You can run mothership:env:dump for creating a template.</comment>');
+                } else {
+                    $output->writeln('<info>Configuration-File ' . $file_name . ' found</info>');
+                }
+            } else {
+                $output->writeln('<info>Scanning folder ' . $this->_base_path . ' for configuration files</info>');
 
-            $config = File::loadConfig(__DIR__ . '/resource/dump.php');
+                $environment_files = array();
+                foreach (glob($this->_base_path . DIRECTORY_SEPARATOR . 'environment*.php') as $_file) {
+                    $_part          = pathinfo($_file);
+                    $_part_filename = explode('_', $_part['filename']);
+                    $environment_files[] = $_part_filename[1];
+                }
+
+                $dialog = $this->getHelper('dialog');
+                $environment = $dialog->select(
+                    $output,
+                    'Please select your environment',
+                    $environment_files,
+                    0
+                );
+                $output->writeln('You have just selected: ' . $environment_files[$environment]);
+                $file_name = $this->_base_path . '/environment_' . $environment_files[$environment] . '.php';
+            }
+
+
+            $this->writeSection($output, 'Applying configuration');
+            $config = File::loadConfig($file_name);
 
             $table = array();
             foreach ($config as $path => $data) {
