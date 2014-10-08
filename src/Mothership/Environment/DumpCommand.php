@@ -45,7 +45,6 @@ use Mothership\Lib\Logger;
 
 class DumpCommand extends Database
 {
-
     /**
      * The excluded paths are all paths in the table core_config_data
      * which are ignored by the dump. You should set them in the /resource/config.php
@@ -85,6 +84,7 @@ class DumpCommand extends Database
 
         $this->detectMagento($output);
         if ($this->initMagento()) {
+
 
             $this->writeSection($output, 'Import the settings from the settings.php file');
 

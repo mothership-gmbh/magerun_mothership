@@ -49,6 +49,8 @@ return array(
             '/^catalog.*/',
             '/^newsletter.*/',
             '/^payment.*/',
+            '/^design.*/',
+            '/^tax.*/',
         )
     ),
 
