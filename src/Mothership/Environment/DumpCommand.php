@@ -123,7 +123,7 @@ class DumpCommand extends Database
             // dump the log
             $logger->getData($this, $output);
             File::writePHPArray(__DIR__ . '/resource/dump.php', $this->_config_to_be_exported);
-
+            $output->writeln('<comment>Output written to: ' . __DIR__ . '/resource/dump.php</comment>');
         };
     }
 
