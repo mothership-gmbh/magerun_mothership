@@ -142,13 +142,19 @@ class CleanCommand extends Database
                     }
                 } else {
 
+                    $sizes = 0;
                     foreach ($this->_files_diff as $_file) {
+                        $size = filesize(\Mage::getBaseDir('media') . '/catalog/product/' .$_file);
+                        $sizes += $size;
                         $table[] = array (
                             'file' => $_file,
+                            'size' => $size
                         );
                     }
 
                     $this->getHelper('table')->write($output, $table);
+                    $output->writeln('<info>Total size in kb: ' . $sizes / 1024 . ' (' . $sizes / 1024 /1024 . ' MB)</info>');
+
                 }
             } else {
                 $output->writeln('<info>There are no files missing</info>');
