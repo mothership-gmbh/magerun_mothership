@@ -5,3 +5,5 @@ commands:
   customCommands:
     - Mothership\Environment\ImportCommand
     - Mothership\Environment\DumpCommand
+    - Mothership\Images\CleanCommand
+    - Mothership\Images\MissingCommand
