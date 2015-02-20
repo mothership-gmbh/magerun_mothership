@@ -30,39 +30,17 @@
 
 namespace Mothership\Images;
 
-use N98\Magento\Command\AbstractMagentoCommand;
-use N98\Util\OperatingSystem;
-use Symfony\Component\Console\Helper\DialogHelper;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use Symfony\Component\Finder\Finder;
-use Mothership\Lib\Database;
-use Mothership\Lib\File;
-use Mothership\Lib\Logger;
-
-class CleanCommand extends Database
+/**
+ * Class CleanCommand
+ *
+ * @category  Mothership
+ * @package   Mothership_CleanCommand
+ * @author    Don Bosco van Hoi <vanhoi@mothership.de>
+ * @copyright 2015 Mothership GmbH
+ * @link      http://www.mothership.de/
+ */
+class CleanCommand extends AbstractCommand
 {
-    /**
-     * The excluded paths are all paths in the table core_config_data
-     * which are ignored by the dump. You should set them in the /resource/config.php
-     *
-     * @var array
-     */
-    protected $_files_local;
-
-    /**
-     * @var
-     */
-    protected $_files_remote;
-
-    /**
-     * @var
-     */
-    protected $_files_diff;
-
     /**
      * Command config
      *
@@ -81,10 +59,8 @@ class CleanCommand extends Database
      *
      * @return int|void
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(\Symfony\Component\Console\Input\InputInterface $input, \Symfony\Component\Console\Output\OutputInterface $output)
     {
-        $logger = Logger::getInstance();
-
         $this->detectMagento($output);
         if ($this->initMagento()) {
 
@@ -110,7 +86,6 @@ class CleanCommand extends Database
                 }
             }
 
-
             if (count($this->_files_diff) > 0) {
 
                 $options = array (
@@ -120,7 +95,7 @@ class CleanCommand extends Database
                 );
 
 
-                $message = 'There are ' . count($this->_files_diff) . ' files missing';
+                $message = 'There are ' . count($this->_files_diff) . ' files, which can be deleted.';
 
                 $dialog = $this->getHelper('dialog');
                 $option = $dialog->select(
@@ -138,7 +113,7 @@ class CleanCommand extends Database
                     foreach ($this->_files_diff as $_file) {
                         $_image_file = \Mage::getBaseDir('media') . '/catalog/product' . $_file;
                         $output->writeln('<comment>Remove: ' . $_image_file . '</comment>');
-                        // unlink($_image_file);
+                        unlink($_image_file);
                     }
                 } else {
 
@@ -159,28 +134,6 @@ class CleanCommand extends Database
             } else {
                 $output->writeln('<info>There are no files missing</info>');
             }
-
         };
-    }
-
-    /**
-     * Grab all files in the directory and save them
-     *
-     * @return void
-     */
-    protected function _parseCatalogProductDirectory()
-    {
-        $this->_files_local = array ();
-        $dir                = new \RecursiveDirectoryIterator(\Mage::getBaseDir('media') . '/catalog/product');
-        $objects            = new \RecursiveIteratorIterator($dir, \RecursiveIteratorIterator::SELF_FIRST);
-        foreach ($objects as $name => $object) {
-            if ($object->isFile()) {
-                $_tmp_filename     = $object->getPathname();
-                $_tmp_filename_arr = explode('catalog/product', $_tmp_filename);
-                if (false == stristr($_tmp_filename_arr[1], '/cache/')) {
-                    $this->_files_local[] = $_tmp_filename_arr[1];
-                }
-            }
-        }
     }
 }
