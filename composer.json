@@ -1,8 +1,8 @@
 {
-  "name": "mothership/mothership_magerun_addons",
+  "name": "mothership/mothership_magerun",
   "license": "GPL-3.0",
-  "type": "magento-magerun-module",
-  "description": "Magerun addons",
+  "type": "magento-module",
+  "description": "Mothership Admin Panel for Magento",
   "homepage": "https://www.mothership.de",
   "require": {
     "php": ">=5.3",
@@ -13,12 +13,6 @@
       "name": "Don Bosco van Hoi",
       "email": "vanhoi@mothership.de",
       "role": "Contributor/Maintainer"
-    }
-  ],
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "packages.firegento.com"
     }
   ]
 }
