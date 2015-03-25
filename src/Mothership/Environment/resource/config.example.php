@@ -51,10 +51,40 @@ return array(
             '/^payment.*/',
             '/^design.*/',
             '/^tax.*/',
+            '/^customer.*/',
+            '/^enhancedgrid.*/',
+            '/^onestepcheckout.*/',
+            '/^pap_config/pap_legal/pap_terms.*/',
+            '/^advanced/modules_disable_output.*/',
+            '/^markdown.*/',
+            '/^blog.*/',
+            '/^mgt-commerce_mgt_review_reminder.*/',
+            '/^sitemap.*/',
+            '/^crontab.*/',
+            '/^comvos.*/',
+        ),
+        'included_paths' => array(
+            '/paypal\/general\/business_account/',
+
+            '/sales_email\/creditmemo\/copy_to/',
+            '/sales_email\/shipment\/copy_to/',
+            '/sales_email\/order\/copy_to/',
+
+            '/web\/unsecure\/base_url/',
+            '/web\/secure\/base_url/',
+
+            '/google\/analyticsplus_universal\/accountnumber/',
+            '/google\/analytics\/conversion_id/',
+            '/google\/analyticsplus_dynremarketing\/conversionid/',
+
+            '/trans_email\/ident_general\/email/',
+            '/trans_email\/ident_sales\/email/',
+            '/trans_email\/ident_support\/email/',
+            '/trans_email\/ident_custom1\/email/',
+            '/trans_email\/ident_custom2\/email/',
+
+            '/contacts\/email\/recipient_email/',
+            '/general\/imprint\/email/',
         )
-    ),
-
-    'import' => array(
-
     )
 );

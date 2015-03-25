@@ -53,6 +53,9 @@ class DumpCommand extends Database
      */
     protected $_excluded_paths;
 
+
+    protected $_included_paths;
+
     /**
      * The configuration which should be exported
      *
@@ -90,6 +93,18 @@ class DumpCommand extends Database
 
             $this->_initConfig($output);
 
+            $mode_settings = array(
+                0 => 'Dump based on excluded paths',
+                1 => 'Dump based on included paths',
+            );
+            $dialog = $this->getHelper('dialog');
+            $mode = $dialog->select(
+                $output,
+                'Please select your mode',
+                $mode_settings,
+                0
+            );
+            $output->writeln('You have just selected: ' . $mode_settings[$mode]);
 
             $pdo = $this->_getDatabaseConnection();
 
@@ -98,33 +113,73 @@ class DumpCommand extends Database
             $sth->execute();
             $rows = $sth->fetchAll(\PDO::FETCH_ASSOC);
 
-            foreach ($rows as $row) {
-                /**
-                 * Check, if a single row will be excluded
-                 */
-                $exclude = false;
-                foreach ($this->_excluded_paths as $_excluded_path_pattern) {
-                    if (preg_match($_excluded_path_pattern, $row['path'])) {
-                        Logger::logCounter($_excluded_path_pattern);
-                        $exclude = true;
-                    }
-                }
 
-                if (false === $exclude) {
-                    $this->_config_to_be_exported[$row['path']][] = array(
-                        'scope_id' => $row['scope_id'],
-                        'scope'    => $row['scope'],
-                        'value'    => $row['value'],
-                    );
-                }
-                Logger::logCounter('total');
+            if ($mode == 0) {
+
+            }
+
+            if ($mode == 1) {
+                $this->useIncludedPaths($rows);
             }
 
             // dump the log
             $logger->getData($this, $output);
             File::writePHPArray(__DIR__ . '/resource/dump.php', $this->_config_to_be_exported);
             $output->writeln('<comment>Output written to: ' . __DIR__ . '/resource/dump.php</comment>');
+
         };
+    }
+
+    protected function useExcludedPaths($rows)
+    {
+
+        foreach ($rows as $row) {
+            /**
+             * Check, if a single row will be excluded
+             */
+            $exclude = false;
+            foreach ($this->_excluded_paths as $_excluded_path_pattern) {
+                if (preg_match($_excluded_path_pattern, $row['path'])) {
+                    Logger::logCounter($_excluded_path_pattern);
+                    $exclude = true;
+                }
+            }
+
+            if (false === $exclude) {
+                $this->_config_to_be_exported[$row['path']][] = array(
+                    'scope_id' => $row['scope_id'],
+                    'scope'    => $row['scope'],
+                    'value'    => $row['value'],
+                );
+                Logger::logCounter('total');
+            }
+        }
+    }
+
+    protected function useIncludedPaths($rows)
+    {
+
+        foreach ($rows as $row) {
+            /**
+             * Check, if a single row will be excluded
+             */
+            $include = false;
+            foreach ($this->_included_paths as $_included_path_pattern) {
+                if (preg_match($_included_path_pattern, $row['path'])) {
+                    Logger::logCounter($_included_path_pattern);
+                    $include = true;
+                }
+            }
+
+            if (true === $include) {
+                $this->_config_to_be_exported[$row['path']][] = array(
+                    'scope_id' => $row['scope_id'],
+                    'scope'    => $row['scope'],
+                    'value'    => $row['value'],
+                );
+                Logger::logCounter('total');
+            }
+        }
     }
 
     /**
@@ -137,6 +192,11 @@ class DumpCommand extends Database
         if (array_key_exists('excluded_paths', $config['dump'])) {
             $output->writeln('<comment>Found excluded paths. Setting them.</comment>');
             $this->_excluded_paths = $config['dump']['excluded_paths'];
+        }
+
+        if (array_key_exists('included_paths', $config['dump'])) {
+            $output->writeln('<comment>Found included paths. Setting them.</comment>');
+            $this->_included_paths = $config['dump']['included_paths'];
         }
     }
 }

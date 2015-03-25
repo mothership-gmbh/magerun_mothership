@@ -235,7 +235,7 @@ class ImportCommand extends Database
                     ':value'    => $value
                 )
             );
-            $sth->exec();
+          //  $sth->exec();
         }
     }
 }
