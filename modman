@@ -1,3 +1,3 @@
 /src/Mothership                 lib/n98-magerun/modules/custom/src/Mothership
 /src/Symfony                    lib/n98-magerun/modules/custom/src/Symfony
-n98-magerun.yaml                lib/n98-magerun/modules/custom/n98-magerun.yaml
+#n98-magerun.yaml                lib/n98-magerun/modules/custom/n98-magerun.yaml
