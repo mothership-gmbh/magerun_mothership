@@ -89,7 +89,7 @@ class ImportCommand extends Database
     {
         $this->detectMagento($output);
         if ($this->initMagento()) {
-            $this->_base_path = __DIR__ . '/resource';
+            $this->_base_path = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/environments';
 
             /**
              * If the user sets the option environment variable, then try to find it.
