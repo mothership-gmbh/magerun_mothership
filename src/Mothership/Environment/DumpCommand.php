@@ -122,7 +122,7 @@ class DumpCommand extends Database
 
 
             if ($mode == 0) {
-
+                $this->useExcludedPaths($rows);
             }
 
             if ($mode == 1) {
