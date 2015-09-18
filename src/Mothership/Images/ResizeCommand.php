@@ -148,7 +148,7 @@ class ResizeCommand extends AbstractCommand
                     $imageObj->constrainOnly(true);
                     $imageObj->keepAspectRatio(false);
                     $imageObj->keepFrame(false);
-                    $imageObj->resize(250);
+                    $imageObj->resize($width);
                     $imageObj->save($newPath);
                 } catch (\Exception $e) {
                     echo $e->getMessage();
