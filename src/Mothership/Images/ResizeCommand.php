@@ -142,12 +142,18 @@ class ResizeCommand extends AbstractCommand
         if ($width != '') {
             //if image has already resized then just return URL
             if (file_exists($basePath) && is_file($basePath) && !file_exists($newPath)) {
-                $imageObj = new \Varien_Image($basePath);
-                $imageObj->constrainOnly(true);
-                $imageObj->keepAspectRatio(false);
-                $imageObj->keepFrame(false);
-                $imageObj->resize(250);
-                $imageObj->save($newPath);
+
+                try {
+                    $imageObj = new \Varien_Image($basePath);
+                    $imageObj->constrainOnly(true);
+                    $imageObj->keepAspectRatio(false);
+                    $imageObj->keepFrame(false);
+                    $imageObj->resize(250);
+                    $imageObj->save($newPath);
+                } catch (\Exception $e) {
+                    echo $e->getMessage();
+                }
+
             }
             $url = \Mage::getBaseUrl('media') . 'catalog/product/resized' . $fileName;
         }
