@@ -64,6 +64,11 @@ class DumpCommand extends Database
     protected $_config_to_be_exported;
 
     /**
+     * @var string
+     */
+    protected $_base_path;
+
+    /**
      * Command config
      *
      * @return void
@@ -83,6 +88,8 @@ class DumpCommand extends Database
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->_base_path = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/environments';
+
         $logger = Logger::getInstance();
 
         $this->detectMagento($output);
@@ -124,8 +131,8 @@ class DumpCommand extends Database
 
             // dump the log
             $logger->getData($this, $output);
-            File::writePHPArray(__DIR__ . '/resource/dump.php', $this->_config_to_be_exported);
-            $output->writeln('<comment>Output written to: ' . __DIR__ . '/resource/dump.php</comment>');
+            File::writePHPArray($this->_base_path . '/resource/dump.php', $this->_config_to_be_exported);
+            $output->writeln('<comment>Output written to: ' . $this->_base_path . '/resource/dump.php</comment>');
 
         };
     }
@@ -187,7 +194,7 @@ class DumpCommand extends Database
      */
     protected function _initConfig($output)
     {
-        $config = File::loadConfig(__DIR__ . '/resource/config.php');
+        $config = File::loadConfig($this->_base_path . '/resource/config.php');
 
         if (array_key_exists('excluded_paths', $config['dump'])) {
             $output->writeln('<comment>Found excluded paths. Setting them.</comment>');
