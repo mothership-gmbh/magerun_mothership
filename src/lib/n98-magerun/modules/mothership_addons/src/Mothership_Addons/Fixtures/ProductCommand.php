@@ -43,8 +43,8 @@ use Symfony\Component\Finder\Finder;
 
 use Symfony\Component\Yaml\Dumper;
 
-use Mothership\Lib\Database;
-use Mothership\Lib\File;
+use Mothership_Addons\Lib\Database;
+use Mothership_Addons\Lib\File;
 
 class ProductCommand extends Database
 {

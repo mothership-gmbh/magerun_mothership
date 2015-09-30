@@ -39,9 +39,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Finder\Finder;
-use Mothership\Lib\Database;
-use Mothership\Lib\File;
-use Mothership\Lib\Logger;
+use Mothership_Addons\Lib\Database;
+use Mothership_Addons\Lib\File;
+use Mothership_Addons\Lib\Logger;
 
 /**
  * Class AbstractCommand
