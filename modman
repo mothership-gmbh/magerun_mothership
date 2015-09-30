@@ -1,3 +1,2 @@
-/src/Mothership                 lib/n98-magerun/modules/custom/src/Mothership
-/src/Symfony                    lib/n98-magerun/modules/custom/src/Symfony
-#n98-magerun.yaml                lib/n98-magerun/modules/custom/n98-magerun.yaml
+src/lib/n98-magerun/modules/mothership_addons                   lib/n98-magerun/modules/mothership_addons
+src/app/etc/mothership/environments/environment_vm.php.example  app/etc/mothership/environments/environment_vm.php.example

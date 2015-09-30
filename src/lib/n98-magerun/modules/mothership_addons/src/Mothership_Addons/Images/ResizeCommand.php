@@ -28,7 +28,7 @@
  * @link      http://www.mothership.de/
  */
 
-namespace Mothership\Images;
+namespace Mothership_Addons\Images;
 
 use N98\Magento\Command\Database\AbstractDatabaseCommand;
 use N98\Util\Console\Helper\DatabaseHelper;

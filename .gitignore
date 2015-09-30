@@ -1,1 +1,2 @@
-./src/Mothership/Environment/resource
+src/app/etc/mothership/environments/environment_vm.php
+src/app/etc/mothership/environments/environment_live.php

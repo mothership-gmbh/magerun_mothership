@@ -28,7 +28,7 @@
  * @link      http://www.mothership.de/
  */
 
-namespace Mothership\Images;
+namespace Mothership_Addons\Images;
 
 /**
  * Class MissingCommand

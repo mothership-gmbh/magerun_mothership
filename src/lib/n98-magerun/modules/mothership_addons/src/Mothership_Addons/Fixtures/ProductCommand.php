@@ -28,7 +28,7 @@
  * @link      http://www.mothership.de/
  */
 
-namespace Mothership\Fixtures;
+namespace Mothership_Addons\Fixtures;
 
 use N98\Magento\Command\AbstractMagentoCommand;
 use N98\Util\OperatingSystem;

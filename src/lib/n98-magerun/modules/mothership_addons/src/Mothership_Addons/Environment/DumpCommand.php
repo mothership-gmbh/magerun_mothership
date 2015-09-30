@@ -28,7 +28,7 @@
  * @link      http://www.mothership.de/
  */
 
-namespace Mothership\Environment;
+namespace Mothership_Addons\Environment;
 
 use N98\Magento\Command\AbstractMagentoCommand;
 use N98\Util\OperatingSystem;

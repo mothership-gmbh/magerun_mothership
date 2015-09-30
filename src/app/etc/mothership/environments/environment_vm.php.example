@@ -1,0 +1,21 @@
+<?php
+return array (
+    'dev/js/merge_files' =>
+        array (
+            0 =>
+                array (
+                    'scope_id' => '0',
+                    'scope' => 'default',
+                    'value' => '0',
+                ),
+        ),
+    'dev/css/merge_css_files' =>
+        array (
+            0 =>
+                array (
+                    'scope_id' => '0',
+                    'scope' => 'default',
+                    'value' => '0',
+                ),
+        ),
+);
