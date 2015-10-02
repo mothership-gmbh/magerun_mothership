@@ -6,7 +6,7 @@ return array (
                 array (
                     'scope_id' => '0',
                     'scope'    => 'default',
-                    'value'    => 'http://dev.pearlfection.de/',
+                    'value'    => 'http://dev.example.de/',
                 ),
         ),
     'web/secure/base_url'        =>
@@ -15,7 +15,7 @@ return array (
                 array (
                     'scope_id' => '0',
                     'scope'    => 'default',
-                    'value'    => 'https://dev.pearlfection.de/',
+                    'value'    => 'https://dev.example.de/',
                 ),
         ),
     'dev/template/allow_symlink' =>
@@ -33,7 +33,7 @@ return array (
                 array (
                     'scope_id' => '0',
                     'scope'    => 'default',
-                    'value'    => 'dev.pearlfection.de',
+                    'value'    => 'dev.example.de',
                 ),
         ),
 );
