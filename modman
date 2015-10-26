@@ -1,2 +1,5 @@
 src/lib/n98-magerun/modules/mothership_addons                   lib/n98-magerun/modules/mothership_addons
 src/app/etc/mothership/environments/environment_vm.php.example  app/etc/mothership/environments/environment_vm.php.example
+
+src/app/etc/modules/Mothership_Addons.xml                       app/etc/modules/Mothership_Addons.xml
+src/app/code/local/Mothership/Addons                            app/code/local/Mothership/Addons

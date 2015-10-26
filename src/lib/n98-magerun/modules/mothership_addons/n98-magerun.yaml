@@ -12,3 +12,5 @@ commands:
     - Mothership_Addons\Images\MissingCommand
 
     - Mothership_Addons\Fixtures\ProductCommand
+
+    - Mothership_Addons\Feed\ExportCommand
