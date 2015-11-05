@@ -10,6 +10,7 @@ commands:
 
     - Mothership_Addons\Images\CleanCommand
     - Mothership_Addons\Images\MissingCommand
+    - Mothership_Addons\Images\ResizeCommand
 
     - Mothership_Addons\Fixtures\ProductCommand
 
