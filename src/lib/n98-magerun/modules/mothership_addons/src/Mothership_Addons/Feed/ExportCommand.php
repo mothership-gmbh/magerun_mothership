@@ -30,9 +30,11 @@
 
 namespace Mothership_Addons\Feed;
 
-use Mothership_Addons\Images\AbstractCommand;
+use Mothership_Addons\Lib\Database;
 use Mothership_Addons\Lib\File;
-
+use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Console\Input\InputOption;
+use Mothership\Component\Feed\Output\OutputCsv;
 
 /**
  * Class CleanCommand
@@ -43,7 +45,7 @@ use Mothership_Addons\Lib\File;
  * @copyright 2015 Mothership GmbH
  * @link      http://www.mothership.de/
  */
-class ExportCommand extends AbstractCommand
+class ExportCommand extends Database
 {
     /**
      * Command config
@@ -54,7 +56,14 @@ class ExportCommand extends AbstractCommand
     {
         $this
             ->setName('mothership:feed:export')
-            ->setDescription('Remove unused images from the catalog/product directory');
+            ->setDescription('Export')
+            ->addOption(
+                'config',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'The name of the configuration'
+            )
+        ;
     }
 
     /**
@@ -70,27 +79,93 @@ class ExportCommand extends AbstractCommand
         $this->detectMagento($output);
         if ($this->initMagento()) {
 
-            $base_path = $this->getApplication()->getMagentoRootFolder() . '/var/export';
 
+            $input_path  = $this->getApplication()->getMagentoRootFolder() . '/app/etc/feeds';
+            $output_path = $this->getApplication()->getMagentoRootFolder() . '/media/feeds/';
+
+            $this->_detectConfiguration($input, $output, $input_path);
+
+            /**
+             * Crucial as this method depends on the composer vendor library or
+             * psr-0/4 support in general
+             */
             \Mage::dispatchEvent('add_spl_autoloader');
 
-            /* @var \Mothership_Addons_Helper_Product $data */
-            $data = \Mage::helper('mothership_addons/product');
+            /**
+             * Initialize the database settings and store them in a seperate array
+             * which is used to overwrite the database configuration in the feed configuration file later
+             */
+            $this->detectDbSettings($output);
 
-            $c = $data->export();
+            $config  = [
+                'input' => [
+                    'type' => 'sql'
+                ],
+                'db' => [
+                    'host'     => (string) $this->dbSettings['host'],
+                    'username' => (string) $this->dbSettings['username'],
+                    'password' => (string) $this->dbSettings['password'],
+                    'database' => (string) $this->dbSettings['dbname'],
+                    'port'     => 3306,
+                ]
+            ];
 
-            file_put_contents($base_path . '/dump.php',  '<?php return ' . var_export($c, true) . ';');
+            $file = $input_path . '/idealo_de.yaml';
 
-            $dump = include_once $base_path . '/dump.php';
+            $path = getcwd() . '/tests/test_files/output/fromarray.csv';
+            $this->csvArray = new OutputCsv($path);
 
+            if (!file_exists($file)) {
+                throw new \Exception('File ' . $file . ' does not exist');
+            }
 
-            foreach ($dump as $_store => $_items) {
-                echo "\nSTORE : " . $_store;
-                $feed = new \Mothership\Component\Feed\Feed($_items, getcwd() . '/app/etc/feeds/ladenzeile.yaml');
-               // $export = $feed->getAttributeDistribution();
-                $export = $feed->process();
-                File::writeCsv($_store . '_test.csv', $export);
-            };
+            $factory = new FeedFactory($file, $config);
+            $factory->processFeed(new OutputCsv($output_path . 'idealo_de.csv'));
         };
+    }
+
+    /**
+     * @param \Symfony\Component\Console\Input\InputInterface   $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param string                                            $path
+     *
+     * @return string
+     */
+    protected function _detectConfiguration(
+        \Symfony\Component\Console\Input\InputInterface $input,
+        \Symfony\Component\Console\Output\OutputInterface $output,
+        $path)
+    {
+        /**
+         * If the user sets the option environment variable, then try to find it.
+         */
+        if ($input->getOption('config')) {
+            $file_name = $path . DIRECTORY_SEPARATOR . $input->getOption('config');
+            $output->writeln('<info>Option "' . $input->getOption('config') . '" set</info>');
+            if (!file_exists($file_name)) {
+                $output->writeln('<comment>Configuration-File ' . $file_name . ' not found. Please create a configuration file. You can run mothership:env:dump for creating a template.</comment>');
+            } else {
+                $output->writeln('<info>Configuration-File ' . $file_name . ' found</info>');
+            }
+        } else {
+            $output->writeln('<info>Scanning folder ' . $path . ' for configuration files</info>');
+
+            $environment_files = array();
+            foreach (glob($path . DIRECTORY_SEPARATOR . '*.yaml') as $_file) {
+                $_part          = pathinfo($_file);
+                $environment_files[] = $_part['basename'];
+            }
+
+            $dialog = $this->getHelper('dialog');
+            $environment = $dialog->select(
+                $output,
+                'Please select your feed configuration',
+                $environment_files,
+                0
+            );
+            $output->writeln('You have just selected: ' . $environment_files[$environment]);
+            $file_name = $path . DIRECTORY_SEPARATOR . $environment_files[$environment];
+        }
+        return $file_name;
     }
 }
