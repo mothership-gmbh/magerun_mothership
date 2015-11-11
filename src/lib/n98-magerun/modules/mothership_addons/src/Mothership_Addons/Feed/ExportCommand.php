@@ -80,10 +80,10 @@ class ExportCommand extends Database
         if ($this->initMagento()) {
 
 
-            $input_path  = $this->getApplication()->getMagentoRootFolder() . '/app/etc/feeds';
+            $input_path  = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/feeds';
             $output_path = $this->getApplication()->getMagentoRootFolder() . '/media/feeds/';
 
-            $this->_detectConfiguration($input, $output, $input_path);
+            $filename = $this->_detectConfiguration($input, $output, $input_path);
 
             /**
              * Crucial as this method depends on the composer vendor library or
@@ -110,17 +110,17 @@ class ExportCommand extends Database
                 ]
             ];
 
-            $file = $input_path . '/idealo_de.yaml';
-
             $path = getcwd() . '/tests/test_files/output/fromarray.csv';
             $this->csvArray = new OutputCsv($path);
 
-            if (!file_exists($file)) {
-                throw new \Exception('File ' . $file . ' does not exist');
+            if (!file_exists($input_path . '/' . $filename)) {
+                throw new \Exception('File ' . $input_path . '/' . $filename . ' does not exist');
             }
 
-            $factory = new FeedFactory($file, $config);
-            $factory->processFeed(new OutputCsv($output_path . 'idealo_de.csv'));
+            $factory = new FeedFactory($input_path . '/' . $filename, $config);
+            $factory->processFeed(new OutputCsv($output_path . $filename . '.csv'));
+
+            $output->writeln('<comment>File saved to : ' . $output_path . $filename . '.csv' . '</comment>');
         };
     }
 
@@ -164,7 +164,7 @@ class ExportCommand extends Database
                 0
             );
             $output->writeln('You have just selected: ' . $environment_files[$environment]);
-            $file_name = $path . DIRECTORY_SEPARATOR . $environment_files[$environment];
+            $file_name = $environment_files[$environment];
         }
         return $file_name;
     }
