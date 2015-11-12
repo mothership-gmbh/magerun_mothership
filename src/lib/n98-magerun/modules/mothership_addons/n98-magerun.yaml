@@ -1,7 +1,5 @@
 autoloaders:
   Mothership_Addons: %module%/src
-  Symfony: %module%/src
-
 
 commands:
   customCommands:

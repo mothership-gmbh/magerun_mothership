@@ -6,7 +6,8 @@
   "homepage": "https://www.mothership.de",
   "require": {
     "php": ">=5.3",
-    "magento-hackathon/magento-composer-installer": "*"
+    "magento-hackathon/magento-composer-installer": "*",
+    "symfony/yaml": "2.3"
   },
   "authors": [
     {

@@ -34,6 +34,9 @@
         </Mothership_Addons>
     </modules>
     <global>
+
+        <composer_vendor_path><![CDATA[{{root_dir}}/../vendor]]></composer_vendor_path>
+
         <helpers>
             <mothership_addons>
                 <class>Mothership_Addons_Helper</class>
