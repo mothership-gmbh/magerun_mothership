@@ -43,4 +43,5 @@ class Database extends AbstractDatabaseCommand
     {
         return $this->getHelper('database')->getConnection();
     }
+
 }

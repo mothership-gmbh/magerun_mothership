@@ -1,0 +1,1 @@
+Mage::log($name, null, 'events.log.csv', true);
