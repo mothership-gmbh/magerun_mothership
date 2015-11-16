@@ -117,3 +117,10 @@ This command will create an image file for each entry in the table ```catalog_pr
 For more fun, use the official Mothership Image.
 
 ![Logo](https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xap1/v/t1.0-1/p160x160/1461677_413147242145236_1945192833_n.png?oh=ef95d2bc628a458430a24a3c06dd66f0&oe=56890054&__gda__=1456143606_da6782209cad961eb54f9f020c624785)
+
+mothership:images:resize
+------------------------
+
+Handy command, to minify the base-images. This will create a new directory named after the ```--dir``` parameter and create a smaller version of all existing images. Please be aware that in case you have a new image file with the same name, this command will not recognize that. In this case remove the existing file from the resized image directory and rerun the command
+
+```magerun typehype:images:resize --dir=thumbnails --size=100```
