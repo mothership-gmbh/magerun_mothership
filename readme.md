@@ -114,4 +114,6 @@ mothership:images:create-dummy
 
 This command will create an image file for each entry in the table ```catalog_product_entity_media_gallery```. Just ensure, that you have one file called ```dummy.jpg``` in your ```media``` directory. This can be useful if you have to deal with large product data but do not want to download a gigazillion large directory. 
 
-For more fun, use the official Mothership ![Logo](https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xap1/v/t1.0-1/p160x160/1461677_413147242145236_1945192833_n.png?oh=ef95d2bc628a458430a24a3c06dd66f0&oe=56890054&__gda__=1456143606_da6782209cad961eb54f9f020c624785)
+For more fun, use the official Mothership Image.
+
+![Logo](https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xap1/v/t1.0-1/p160x160/1461677_413147242145236_1945192833_n.png?oh=ef95d2bc628a458430a24a3c06dd66f0&oe=56890054&__gda__=1456143606_da6782209cad961eb54f9f020c624785)
