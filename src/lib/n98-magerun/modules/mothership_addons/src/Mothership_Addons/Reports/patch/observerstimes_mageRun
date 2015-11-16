@@ -1,0 +1,8 @@
+$basefilename = __DIR__."/../observerlogs/observerstimes";
+$now = new \DateTime();
+$url = str_replace('/','_',$_SERVER['REQUEST_URI']);
+$filename = $basefilename."_".$now->format('YmdH').$url.".log.csv";
+
+$fp = fopen($filename, 'w');
+$GLOBALS['fp'] = $fp;
+fputcsv($fp, ["EVENT","OBSERVER","TYPE","METHOD","MODEL","TIME(ms)"],';');

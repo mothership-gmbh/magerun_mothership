@@ -1,0 +1,2 @@
+fclose($fd);
+touch(__DIR__."/../observerlogs/timestamp",time());

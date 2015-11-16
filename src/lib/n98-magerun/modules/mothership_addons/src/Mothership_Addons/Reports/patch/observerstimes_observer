@@ -1,2 +1,4 @@
 $diff = round(microtime(true) - $startime,3)*1000;
-Mage::log(';OBSERVER: '.$obsName.";TYPE: ".$obs['type'].";METHOD: ".$obs['method'].";MODEL: ".$obs['model'].";".$diff, null, 'events.log.csv', true);
+
+$fp = $GLOBALS['fp'];
+fputcsv($fp, ["",$obsName,$obs['type'],$obs['method'],$obs['model'],$diff],';');
