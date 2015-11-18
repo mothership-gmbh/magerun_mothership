@@ -110,9 +110,6 @@ class ExportCommand extends Database
                 ]
             ];
 
-            $path = getcwd() . '/tests/test_files/output/fromarray.csv';
-            $this->csvArray = new OutputCsv($path);
-
             if (!file_exists($input_path . '/' . $filename)) {
                 throw new \Exception('File ' . $input_path . '/' . $filename . ' does not exist');
             }
@@ -140,12 +137,13 @@ class ExportCommand extends Database
          * If the user sets the option environment variable, then try to find it.
          */
         if ($input->getOption('config')) {
-            $file_name = $path . DIRECTORY_SEPARATOR . $input->getOption('config');
+            $file_name = $input->getOption('config');
+            $full_path = $path . DIRECTORY_SEPARATOR . $input->getOption('config');
             $output->writeln('<info>Option "' . $input->getOption('config') . '" set</info>');
-            if (!file_exists($file_name)) {
-                $output->writeln('<comment>Configuration-File ' . $file_name . ' not found. Please create a configuration file. You can run mothership:env:dump for creating a template.</comment>');
+            if (!file_exists($full_path)) {
+                $output->writeln('<comment>Configuration-File ' . $full_path . ' not found. .</comment>');
             } else {
-                $output->writeln('<info>Configuration-File ' . $file_name . ' found</info>');
+                $output->writeln('<info>Configuration-File ' . $full_path . ' found</info>');
             }
         } else {
             $output->writeln('<info>Scanning folder ' . $path . ' for configuration files</info>');
