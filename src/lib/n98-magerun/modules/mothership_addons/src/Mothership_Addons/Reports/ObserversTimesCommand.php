@@ -51,7 +51,7 @@ class ObserversTimesCommand extends AbstractMagentoCommand
     protected function configure()
     {
         $this->setName('mothership:reports:observerstimes')
-            ->setDescription('Create a csv report with the execution workflow and observers execution time')
+            ->setDescription('Create a csv report with the execution workflow and observers execution times')
             ->addOption(
                 'bootleneck',
                 null,
