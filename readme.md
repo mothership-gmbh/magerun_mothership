@@ -43,6 +43,16 @@ cd MAGENTO_ROOT/lib/n98-magerun/modules
 git clone https://github.com/mothership-gmbh/magerun_mothership.git
 ```
 
+Method 3 - composer.json
+---------------------------------------
+just add this require to your *composer.json*
+
+```
+"require": {
+        "mothership/mothership_magerun":"dev-master"
+        }
+```
+
 
 Test it
 =======
