@@ -20,7 +20,7 @@
  * needs please refer to http://www.magentocommerce.com for more information.
  *
  * @category  Mothership
- * @package   Mothership_{EXTENSION NAME}
+ * @package   Mothership_Reports
  * @author    Maurizio Brioschi <brioschi@mothership.de>
  * @copyright Copyright (c) 2015 Mothership GmbH
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
@@ -32,8 +32,12 @@ use N98\Magento\Command\AbstractMagentoCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Varien_Io_File;
 
+/**
+ * This command provide methods to retrieve a csv reports with all the events and relative observers called for each
+ * Magento page with the execution time
+ * @package Mothership_Addons\Reports
+ */
 class ObserversTimesCommand extends AbstractMagentoCommand
 {
     protected $magento_root;
@@ -56,6 +60,12 @@ class ObserversTimesCommand extends AbstractMagentoCommand
             );
     }
 
+    /**
+     * Execute the command
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int|null|void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->handleSygnal();
@@ -68,7 +78,6 @@ class ObserversTimesCommand extends AbstractMagentoCommand
         $this->dateStart = new \DateTime();
         $bootleneck = false;
         $info = array();
-
         if ($input->getOption('bootleneck') == true) {
             $bootleneck = true;
             $this->output->writeln("<info>I will report bootlenecks</info>");
@@ -81,16 +90,13 @@ class ObserversTimesCommand extends AbstractMagentoCommand
             $this->output->writeln("<info>Start reporting...</info>");
             $this->output->writeln("<warning>Press Ctrl+z or Ctrl+c to stop!</warning>");
 
-
-            touch($this->observerlog_dir.'/timestamp',time()-3600);
-            chmod($this->observerlog_dir.'/timestamp',0777);
             $this->file_report = scandir($this->observerlog_dir);
-            $this->timestampfile = filemtime($this->observerlog_dir.'/timestamp');
+            $this->timestampfile = filemtime($this->observerlog_dir . '/timestamp');
             if ($bootleneck) {
                 while (true) {
                     $this->output->write("<info>.</info>");
-                    if (fileatime($this->observerlog_dir.'/timestamp') > $this->timestampfile) {
-                        $newfiles = scandir($this->observerlog_dir);
+                    $newfiles = scandir($this->observerlog_dir);
+                    if (count($newfiles) > count($this->file_report)) {
                         $this->checkBootleneck($newfiles);
                     }
 
@@ -119,22 +125,18 @@ class ObserversTimesCommand extends AbstractMagentoCommand
     }
 
     /**
-     * add the patch
+     * add patches
      */
-    protected function addPatch($bootleneck = false)
+    protected function addPatch()
     {
-        //$patch = file_get_contents(dirname(__FILE__) . "/patch/observerstimes_dispatchEvent");
         $this->mage_php = file_get_contents($this->magento_root . '/app/Mage.php');
-
-        /*$mage_log = str_replace("Varien_Profiler::start('DISPATCH EVENT:'", trim($patch) . "Varien_Profiler::start
-        ('DISPATCH EVENT:'", $this->mage_php);*/
 
         $patch_mageRun = file_get_contents(dirname(__FILE__) . "/patch/observerstimes_mageRun");
         $patch_mageRunEnd = file_get_contents(dirname(__FILE__) . "/patch/observerstimes_mageRunEnd");
 
-        $mage_log = str_replace("Varien_Profiler::start('mage');","Varien_Profiler::start('mage');".$patch_mageRun,
+        $mage_log = str_replace("Varien_Profiler::start('mage');", "Varien_Profiler::start('mage');" . $patch_mageRun,
             $this->mage_php);
-        $mage_log = str_replace("Varien_Profiler::stop('mage');",$patch_mageRunEnd."Varien_Profiler::stop('mage');",
+        $mage_log = str_replace("Varien_Profiler::stop('mage');", $patch_mageRunEnd . "Varien_Profiler::stop('mage');",
             $mage_log);
 
         file_put_contents($this->magento_root . "/app/Mage.php", $mage_log);
@@ -152,7 +154,7 @@ class ObserversTimesCommand extends AbstractMagentoCommand
     }
 
     /**
-     * remove the patchcount(scandir($this->magento_root . '/var/log'));
+     * remove patches
      */
     protected function removePatch()
     {
@@ -160,6 +162,64 @@ class ObserversTimesCommand extends AbstractMagentoCommand
         file_put_contents($this->magento_root . "/app/code/core/Mage/Core/Model/App.php", $this->app_php);
     }
 
+    /**
+     * Analise bottleneck from all the files in the array and print the output on the terminal line
+     * @param array $newfiles
+     */
+    protected function checkBootleneck(array $newfiles)
+    {
+        $diff = array_diff($newfiles, $this->file_report);
+        foreach ($diff as $filelog) {
+            $this->output->writeln("<info>Analisyng: " . $filelog . "</info>");
+            $csvData = $this->getFileContent($filelog);
+            $lines = explode(PHP_EOL, $csvData);
+            $bootlenecks = [];
+            foreach ($lines as $line) {
+                $myline = str_getcsv($line, ";");
+                if (count(array_keys($myline)) > 4) {
+                    if ($myline[5] > 0) {
+                        $bootlenecks[] = [$myline['1'], $myline['4'], $myline['3'], $myline['5']];
+                    }
+                }
+            }
+            $explodeFile = explode("_", $filelog);
+            $url = str_replace(".log.csv", "", $filelog);
+            $this->output->writeln("<info>Url: " . str_replace("_", "/", str_replace
+                ($explodeFile[0] . "_" . $explodeFile[1], "", $url))
+                . "</info>");
+            $table = $this->getHelper('table');
+            $table->setHeaders(['Observer', 'Model', 'Method', 'Time (ms)']);
+            $table->setRows($bootlenecks);
+            $table->render($this->output);
+        }
+        $this->file_report = $newfiles;
+    }
+
+    /**
+     * Try to get the contents of a report files, if it's lock from Magento, sleep for 1 sec.
+     * @param $filename
+     * @return string
+     */
+    protected function getFileContent($filename)
+    {
+        $fp = fopen($this->observerlog_dir . '/' . $filename, 'r');
+        if (!$fp) {
+            sleep(1);
+            $this->getFileContent($filename);
+        } else if (flock($fp, LOCK_EX)) {
+            $csvData = file_get_contents($this->observerlog_dir . '/' . $filename);
+            fflush($fp);
+            flock($fp, LOCK_UN);
+            return $csvData;
+        } else {
+            sleep(1);
+            $this->getFileContent($filename);
+        }
+    }
+
+    /**
+     * Handle the signal from the terminal
+     */
     private function handleSygnal()
     {
         declare(ticks = 1);
@@ -175,34 +235,5 @@ class ObserversTimesCommand extends AbstractMagentoCommand
         });
     }
 
-
-    protected function checkBootleneck(array $newfiles)
-    {
-        $diff = array_diff($newfiles, $this->file_report);
-        foreach ($diff as $filelog) {
-            $this->output->writeln("<info>Analisyng: " . $filelog . "</info>");
-            $csvData = file_get_contents($this->observerlog_dir . '/' . $filelog);
-            $lines = explode(PHP_EOL, $csvData);
-            $bootlenecks = [];
-            foreach ($lines as $line) {
-                $myline = str_getcsv($line, ";");
-                print_r($myline);
-                if ($myline[5] > 0) {
-                    $this->output->writeln("<info>CIAO: ".$myline['5']."</info>");
-                    $bootlenecks[] = [$myline['1'], $myline['4'], $myline['3'], $myline['5']];
-                }
-            }
-
-            $filenameEx = explode("_", $filelog);
-            /*$url = str_replace(".log.csv", "",$filenameEx[2]);
-            $this->output->writeln("<info>Url: ".$url."</info>");*/
-            $table = $this->getHelper('table');
-            $table->setHeaders(['Observer', 'Model', 'Method', 'Time (ms)']);
-            $table->setRows($bootlenecks);
-            $table->render($this->output);
-        }
-        $this->file_report = $newfiles;
-        $this->timestampfile =fileatime($this->observerlog_dir.'/timestamp');
-    }
 
 }
