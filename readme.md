@@ -124,3 +124,14 @@ mothership:images:resize
 Handy command, to minify the base-images. This will create a new directory named after the ```--dir``` parameter and create a smaller version of all existing images. Please be aware that in case you have a new image file with the same name, this command will not recognize that. In this case remove the existing file from the resized image directory and rerun the command
 
 ```magerun typehype:images:resize --dir=thumbnails --size=100```
+
+mothership:reports:observerstimes
+------------------------
+This is a *magerun* command to create a *csv* reports to find all the events and relative observers called for each 
+Magento page called in the browser during navigation.
+
+```
+magerun mothership:reports:observerstimes
+```
+
+[More doc](https://github.com/mothership-gmbh/magerun_mothership/tree/master/src/lib/n98-magerun/modules/mothership_addons/src/Mothership_Addons/Reports)
