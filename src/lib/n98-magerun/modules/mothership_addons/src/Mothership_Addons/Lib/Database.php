@@ -37,7 +37,7 @@ class Database extends AbstractDatabaseCommand
     /**
      * Retreive a pdo database connection
      *
-     * @return PDO
+     * @return \PDO
      */
     protected function _getDatabaseConnection()
     {

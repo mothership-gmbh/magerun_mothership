@@ -97,24 +97,14 @@ class ExportCommand extends Database
              */
             $this->detectDbSettings($output);
 
-            $config  = [
-                'input' => [
-                    'type' => 'sql'
-                ],
-                'db' => [
-                    'host'     => (string) $this->dbSettings['host'],
-                    'username' => (string) $this->dbSettings['username'],
-                    'password' => (string) $this->dbSettings['password'],
-                    'database' => (string) $this->dbSettings['dbname'],
-                    'port'     => 3306,
-                ]
-            ];
 
             if (!file_exists($input_path . '/' . $filename)) {
                 throw new \Exception('File ' . $input_path . '/' . $filename . ' does not exist');
             }
 
-            $factory = new FeedFactory($input_path . '/' . $filename, $config);
+            $input_interface = new \Mothership\Component\Feed\Input\InputMysqlData($this->_getDatabaseConnection());
+
+            $factory = new FeedFactory($input_path . '/' . $filename, $input_interface);
             $factory->processFeed(new OutputCsv($output_path . $filename . '.csv'));
 
             $output->writeln('<comment>File saved to : ' . $output_path . $filename . '.csv' . '</comment>');

@@ -50,14 +50,8 @@ class FeedFactory extends FactoryFeedAbstract
      *
      * @throws \Mothership\Component\Feed\Exception\FactoryFeedException
      */
-    public function __construct($mapping_path, $extended_configuration)
+    public function __construct($mapping_path, $inputInterface)
     {
-        parent::__construct($mapping_path);
-
-        /**
-         * Overwrite the default database configuration as the database configuration
-         * are always dynamic and should not be set in the configuration file
-         */
-        $this->mapping['db'] = $extended_configuration['db'];
+        parent::__construct($mapping_path, $inputInterface);
     }
 }
