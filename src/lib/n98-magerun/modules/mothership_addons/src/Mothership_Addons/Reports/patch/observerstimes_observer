@@ -1,4 +1,4 @@
 $diff = round(microtime(true) - $startime,3)*1000;
 
 $fp = $GLOBALS['fp'];
-fputcsv($fp, ["",$obsName,$obs['type'],$obs['method'],$obs['model'],$diff],';');
+fputcsv($fp, ["",$obsName,$obs['type'],$obs['method'],$args_as_string,$obs['model'],$diff],';');

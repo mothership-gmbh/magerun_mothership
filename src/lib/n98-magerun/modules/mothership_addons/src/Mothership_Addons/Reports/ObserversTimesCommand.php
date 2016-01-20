@@ -93,13 +93,17 @@ class ObserversTimesCommand extends AbstractMagentoCommand
             $this->file_report = scandir($this->observerlog_dir);
             $this->timestampfile = filemtime($this->observerlog_dir . '/timestamp');
             if ($bootleneck) {
+                /**
+                 * infinite loop waiting for signal from the terminal
+                 */
                 while (true) {
                     $this->output->write("<info>.</info>");
                     $newfiles = scandir($this->observerlog_dir);
+                    //if we surf the website we add a new file, so we have to analyze it
                     if (count($newfiles) > count($this->file_report)) {
                         $this->checkBootleneck($newfiles);
                     }
-
+                    //wait one second
                     pcntl_sigtimedwait(array(SIGTERM), $info, 1);
                 }
             } else {
@@ -125,10 +129,11 @@ class ObserversTimesCommand extends AbstractMagentoCommand
     }
 
     /**
-     * add patches
+     * add patches from folder patch
      */
     protected function addPatch()
     {
+        //patch for /app/Mage.php
         $this->mage_php = file_get_contents($this->magento_root . '/app/Mage.php');
 
         $patch_mageRun = file_get_contents(dirname(__FILE__) . "/patch/observerstimes_mageRun");
@@ -138,9 +143,9 @@ class ObserversTimesCommand extends AbstractMagentoCommand
             $this->mage_php);
         $mage_log = str_replace("Varien_Profiler::stop('mage');", $patch_mageRunEnd . "Varien_Profiler::stop('mage');",
             $mage_log);
-
         file_put_contents($this->magento_root . "/app/Mage.php", $mage_log);
 
+        //patch for /app/code/core/Mage/Core/Model/App.php
         $this->app_php = file_get_contents($this->magento_root . "/app/code/core/Mage/Core/Model/App.php");
         $app_log = str_replace("Varien_Profiler::start('OBSERVER: '",
             "\$startime=microtime(true);Varien_Profiler::start('OBSERVER: '", $this->app_php);
@@ -164,6 +169,7 @@ class ObserversTimesCommand extends AbstractMagentoCommand
 
     /**
      * Analise bottleneck from all the files in the array and print the output on the terminal line
+     * The analysis content is caused by the patch inserted
      * @param array $newfiles
      */
     protected function checkBootleneck(array $newfiles)
@@ -178,7 +184,8 @@ class ObserversTimesCommand extends AbstractMagentoCommand
                 $myline = str_getcsv($line, ";");
                 if (count(array_keys($myline)) > 4) {
                     if ($myline[5] > 0) {
-                        $bootlenecks[] = [$myline['1'], $myline['4'], $myline['3'], $myline['5']];
+                        //HEADER -> ["EVENT","OBSERVER","TYPE","METHOD","MODEL","ARGS","TIME(ms)"]
+                        $bootlenecks[] = [$myline['1'], $myline['5'], $myline['3'], $myline['5'], $myline['6']];
                     }
                 }
             }
@@ -188,7 +195,7 @@ class ObserversTimesCommand extends AbstractMagentoCommand
                 ($explodeFile[0] . "_" . $explodeFile[1], "", $url))
                 . "</info>");
             $table = $this->getHelper('table');
-            $table->setHeaders(['Observer', 'Model', 'Method', 'Time (ms)']);
+            $table->setHeaders(['Observer', 'Model', 'Method', 'Args', 'Time (ms)']);
             $table->setRows($bootlenecks);
             $table->render($this->output);
         }

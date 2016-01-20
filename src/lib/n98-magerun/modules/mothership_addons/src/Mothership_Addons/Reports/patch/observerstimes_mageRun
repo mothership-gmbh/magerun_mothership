@@ -7,4 +7,4 @@ $fp = fopen($filename, 'w');
 
 flock($fp, LOCK_EX);
 $GLOBALS['fp'] = $fp;
-fputcsv($fp, ["EVENT","OBSERVER","TYPE","METHOD","MODEL","TIME(ms)"],';');
+fputcsv($fp, ["EVENT","OBSERVER","TYPE","METHOD","MODEL","ARGS","TIME(ms)"],';');
