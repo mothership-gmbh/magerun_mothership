@@ -144,4 +144,30 @@ Magento page called in the browser during navigation.
 magerun mothership:reports:observerstimes
 ```
 
+# mothership:workflow:run
+
+This is a magerun command to run a workflow. It depends on the [Mothership State Machine](https://github.com/mothership-gmbh/state_machine) and is basically a comfortable wrapper for the native method.
+
+See more details in this file.
+
+```
+magerun mothership:workflow:run
+```
+
+## Recommended directory structure
+
+```
+# directory path
+```
+
+## modman symlinks
+
+Please directly link s
+
+```
+sdf
+```
+
+
+
 [More doc](https://github.com/mothership-gmbh/magerun_mothership/tree/master/src/lib/n98-magerun/modules/mothership_addons/src/Mothership_Addons/Reports)
