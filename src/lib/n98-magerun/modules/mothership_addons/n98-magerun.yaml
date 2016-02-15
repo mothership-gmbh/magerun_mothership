@@ -15,3 +15,7 @@ commands:
 
     - Mothership_Addons\Feed\ExportCommand
     - Mothership_Addons\Reports\ObserversTimesCommand
+
+
+    - Mothership_Addons\Workflow\RunCommand
+    - Mothership_Addons\Workflow\ListCommand
