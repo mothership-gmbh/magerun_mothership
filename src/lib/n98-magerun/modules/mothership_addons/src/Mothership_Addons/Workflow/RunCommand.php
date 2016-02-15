@@ -74,6 +74,16 @@ class RunCommand extends \N98\Magento\Command\AbstractMagentoCommand
 
             $explodedConfig = explode("=", $GLOBALS['argv'][2]);
 
+            /**
+             * Add the option to add this to a queue. Requires a queue configuration
+             */
+            $this->addOption(
+                'queue',
+                null,
+                1,
+                'Put the workflow into a queue instead of running it directly'
+            );
+
             // add the config
             $this->addOption(
                 'config',
@@ -143,7 +153,6 @@ HELP;
     {
         if ($input->hasOption('interactive') && $input->getOption('interactive')) {
 
-
             $output->writeln('<info>Interactive Mode enabled</info>');
 
             $questionHelper = $this->getHelper('question');
@@ -172,9 +181,10 @@ HELP;
                         $questionText,
                         array_key_exists('default', $_config) ? $_config['default'] : null
                     );
-                    $answer   = $questionHelper->ask($input, $output, $question);
+                    $answer = $questionHelper->ask($input, $output, $question);
                 }
 
+                $input->setOption($_options, $answer);
                 $output->writeln('<comment>Your answer: </comment>' . $answer);
             }
         }
@@ -204,9 +214,44 @@ HELP;
             $input_path = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/workflows';
             $filename   = $this->_detectConfiguration($input, $output, $input_path);
 
-            $stateMachine = new \Mothership\Aigner\StateMachine\StateMachine($input_path . '/' . $filename);
-            $stateMachine->run($this->getArguments($input, $output));
+            if ($input->hasOption('queue')) {
+                /**
+                 * Add the job for the incremental update
+                 */
+                $args = array_merge([
+                    'workflow_path' => $this->getApplication()->getMagentoRootFolder() . '/app/etc/workflows/' . $input->getOption('config'),
+                    'workflow'      => $input->getOption('config'),
+                ], $this->getArguments($input, $output));
+
+                $this->printCommand($args, $output);
+                \Resque::enqueue(\Mage::getStoreConfig('mothership_intex/queue/name'), '\Mothership\Aigner\Queue\Jobs\Intex', $args, true);
+            } else {
+                $stateMachine = new \Mothership\Aigner\StateMachine\StateMachine($input_path . '/' . $filename);
+                $stateMachine->run($this->getArguments($input, $output));
+            }
+
         };
+    }
+
+    /**
+     * @return void
+     */
+    protected function printCommand($args, $output)
+    {
+        $data = [];
+        foreach ($args as $_arg => $_value) {
+            if (!in_array($_arg, ['input', 'output', 'interactive', 'workflow_path', 'workflow']) && false !== $_value) {
+                $data[$_arg] = $_value;
+                echo "\n" . $_arg . "=> " . $_value;
+            }
+        }
+
+        $ordered = array_merge(array_flip(array('config', 'environment', 'data_type', 'range', 'root-dir', 'queue')), $data);
+        $output->writeln("\n" . '<comment>magerun mothership:workflow:run --' .  implode(' --', array_map(
+                    function ($v, $k) { return $k . '=' . $v; },
+                    $ordered,
+                    array_keys($ordered)
+                )) . '</comment>');
     }
 
     /**
