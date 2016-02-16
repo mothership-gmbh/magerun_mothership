@@ -19,3 +19,4 @@ commands:
 
     - Mothership_Addons\Workflow\RunCommand
     - Mothership_Addons\Workflow\ListCommand
+    - Mothership_Addons\Workflow\RenderCommand
