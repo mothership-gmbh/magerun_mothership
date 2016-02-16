@@ -5,3 +5,4 @@ src/app/etc/modules/Mothership_Addons.xml                       app/etc/modules/
 src/app/code/local/Mothership/Addons                            app/code/local/Mothership/Addons
 
 src/media/feeds/readme.md                                       media/feeds/readme.md
+src/lib/Mothership/Magerun                                      lib/Mothership/Magerun
