@@ -105,8 +105,6 @@ class RenderCommand extends \N98\Magento\Command\AbstractMagentoCommand
             )
         ;
 
-
-
         parent::configure();
     }
 
@@ -145,112 +143,9 @@ class RenderCommand extends \N98\Magento\Command\AbstractMagentoCommand
             // $input_interface = new \Mothership\Component\Feed\Input\InputMysqlData($this->_getDatabaseConnection());
 
             $stateMachine = new \Mothership\Magerun\StateMachine\StateMachine($input_path . '/' . $filename);
-            if ($input->getOption('render-graph')) {
-                $output->writeln('<comment>Create PNG in in: ' . $input_path . '/' . $filename .'.png </comment>');
-                $stateMachine->renderGraph($input_path . '/' . $filename .'.png');
-                return;
-            }
-
-            //
-            $config = require $input_path . '/config.php';
-
-            try {
-                $stateMachine->run([
-                    'output'        => $output,
-                    'input'         => $input,
-                    'workflow_path' => $input_path,
-                    'root_dir'      => $this->_magentoRootFolder,
-                    'resource_dir'  => self::DIRECTORY,
-                    'mode'          => $input->getOption('mode'),
-                    'env'           => $input->getOption('env'),
-                    // 'timestamp'     => time(),
-
-                    // only for the download
-                    'data_type'     => $input->getOption('data_type'),
-                    'range'         => $input->getOption('range'),
-
-                    // only useful for the jobs command
-                    'b2csku'        => $input->getOption('b2csku'),
-                    'es_type'       => $input->getOption('es_type'),
-                    'clean-jobs'    => $input->getOption('clean-jobs'),
-
-                    // debug information like execution time
-                    'debug'         => true,
-
-                    // configuration settings
-                    'config'        => $config
-                ]);
-            } catch (\Mothership\Aigner\Workflow\Exception $e) {
-
-                echo $e->getMessage();
-            } catch (\Exception $e) {
-                echo $e->getMessage();
-                $this->handleException('Workflow', $e, $config);
-            }
+            $output->writeln('<comment>Create PNG in in: ' . $input_path . '/' . $filename .'.png </comment>');
+            $stateMachine->renderGraph($input_path . '/' . $filename .'.png');
         };
-    }
-
-    /**
-     * Initial function to check if all required components are registered. If they are not registered, then
-     *
-     * @param mixed $config
-     *
-     * @return void
-     */
-    private function getCachetComponents($config)
-    {
-        $requiredComponents  = ['General', 'Workflow', 'Jobs'];
-        $cachetInstance = CachetInstanceFactory::create($config['cachet']['host'], $config['cachet']['key']);
-
-        $components = $cachetInstance->getAllComponents();
-
-        foreach ($components as $component) {
-            if (($key = array_search($component->name, $requiredComponents)) !== false) {
-                unset($requiredComponents[$key]);
-            }
-        }
-
-        foreach ($requiredComponents as $_component) {
-            $componentDetails = ['name' => $_component, 'status' => 1];
-            $cachetInstance->createComponent($componentDetails);
-        }
-    }
-
-    /**
-     * In case you have an exception within this library, then just run // $e->getResponse()->getBody()->getContents()
-     *
-     * @param string     $type
-     * @param \Exception $e
-     * @param mixed      $config
-     *
-     * @return void
-     */
-    private function handleException($type, \Exception $e, $config)
-    {
-        $cachetInstance = CachetInstanceFactory::create($config['cachet']['host'], $config['cachet']['key']);
-
-        // Get components
-        $components = $cachetInstance->getAllComponents();
-        $component_id = 0;
-
-
-        foreach ($components as $_component) {
-            if ($_component->name == $type) {
-                $component_id = $_component->id;
-            }
-        }
-
-        $cachetInstance->createIncident(
-            [
-                'id'           => 1,
-                'name'         => $type,
-                'message'      => $e->getFile() . "\nLine: " . $e->getLine() . "\n" . $e->getMessage(),
-                'status'       => 1,
-                'visible'      => 1,
-                'component_id' => $component_id,
-                'notify'       => false
-            ]
-        );
     }
 
     /**
