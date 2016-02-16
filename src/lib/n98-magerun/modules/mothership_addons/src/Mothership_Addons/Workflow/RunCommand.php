@@ -214,7 +214,7 @@ HELP;
             $input_path = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/workflows';
             $filename   = $this->_detectConfiguration($input, $output, $input_path);
 
-            if ($input->hasOption('queue')) {
+            if ($input->hasOption('queue') && $input->getOption('queue')) {
                 /**
                  * Add the job for the incremental update
                  */
