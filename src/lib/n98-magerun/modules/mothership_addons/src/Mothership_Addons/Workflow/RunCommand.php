@@ -226,7 +226,7 @@ HELP;
                 $this->printCommand($args, $output);
                 \Resque::enqueue(\Mage::getStoreConfig('mothership_intex/queue/name'), '\Mothership\Aigner\Queue\Jobs\Intex', $args, true);
             } else {
-                $stateMachine = new \Mothership\Aigner\StateMachine\StateMachine($input_path . '/' . $filename);
+                $stateMachine = new \Mothership\Magerun\StateMachine\StateMachine($input_path . '/' . $filename);
                 $stateMachine->run($this->getArguments($input, $output));
             }
 
