@@ -18,27 +18,32 @@
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
  *
- * PHP Version 5.4
- *
- * @category  Mothership
- * @package   Mothership_Aigner
- * @author    Don Bosco van Hoi <vanhoi@mothership.de>
- * @copyright 2016 Mothership GmbH
- * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @link      http://www.mothership.de/
+ * @category    Mage
+ * @package     Mage_Shell
+ * @copyright   Copyright (c) 2009 Irubin Consulting Inc. DBA Varien (http://www.varien.com)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-namespace Mothership\Magerun\StateMachine;
+
+require_once 'abstract.php';
 
 /**
- * Class StateMachine
+ * Magento Compiler Shell Script
  *
- * @category  Mothership
- * @package   Mothership_StateMachine
- * @author    Don Bosco van Hoi <vanhoi@mothership.de>
- * @copyright 2016 Mothership GmbH
- * @link      http://www.mothership.de/
+ * @category    Mage
+ * @package     Mage_Shell
+ * @author      Magento Core Team <core@magentocommerce.com>
  */
-class StateMachine extends \Mothership\StateMachine\StateMachineAbstract
+class Mage_Shell_Queue extends Mage_Shell_Abstract
 {
-
+    public function run()
+    {
+        /**
+         * Crucial as this method depends on the composer vendor library or
+         * psr-0/4 support in general
+         */
+        \Mage::dispatchEvent('add_spl_autoloader');
+    }
 }
+
+$shell = new Mage_Shell_Queue();
+$shell->run();
