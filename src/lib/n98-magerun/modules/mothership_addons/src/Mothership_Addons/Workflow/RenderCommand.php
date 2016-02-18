@@ -142,7 +142,7 @@ class RenderCommand extends \N98\Magento\Command\AbstractMagentoCommand
 
             // $input_interface = new \Mothership\Component\Feed\Input\InputMysqlData($this->_getDatabaseConnection());
 
-            $stateMachine = new \Mothership\Magerun\StateMachine\StateMachine($input_path . '/' . $filename);
+            $stateMachine = new \Mothership\StateMachine\StateMachine($input_path . '/' . $filename);
             $output->writeln('<comment>Create PNG in in: ' . $input_path . '/' . $filename .'.png </comment>');
             $stateMachine->renderGraph($input_path . '/' . $filename .'.png');
         };
