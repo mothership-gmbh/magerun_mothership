@@ -147,8 +147,6 @@ magerun mothership:reports:observerstimes
 # mothership:workflow:run
 
 This is a magerun command to run a workflow. It depends on the [Mothership State Machine](https://github.com/mothership-gmbh/state_machine) and is basically a comfortable wrapper for the native method.
-hten Stunden etwa 75 Stunden tragen. Geplant waren 245,5 Stunden. Somit haben Sie wohl bisher ca. 31 % der budget
-See more details in this file.
 
 ```
 magerun mothership:workflow:run
