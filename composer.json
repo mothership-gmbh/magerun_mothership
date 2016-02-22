@@ -20,5 +20,10 @@
       "email": "vanhoi@mothership.de",
       "role": "Contributor/Maintainer"
     }
-  ]
+  ],
+  "autoload": {
+    "psr-4": {
+      "Mothership\\Magerun\\":  "www/lib/Mothership/Magerun"
+    }
+  }
 }
