@@ -92,31 +92,34 @@ class RunCommand extends \N98\Magento\Command\AbstractMagentoCommand
                 'configuration'
             );
 
-            $workflowConfigurationFile = getcwd() . '/app/etc/mothership/workflows/' . $explodedConfig[1];
+            if (array_key_exists(1, $explodedConfig) && strpos($explodedConfig[1], 'yaml') !== false) {
 
-            if (file_exists($workflowConfigurationFile)) {
-                $workflowConfiguration = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($workflowConfigurationFile));
+                $workflowConfigurationFile = getcwd() . '/app/etc/mothership/workflows/' . $explodedConfig[1];
 
-                if (array_key_exists('options', $workflowConfiguration)) {
+                if (file_exists($workflowConfigurationFile)) {
+                    $workflowConfiguration = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($workflowConfigurationFile));
 
-                    // add the config
-                    $this->addOption(
-                        'interactive',
-                        'i',
-                        InputOption::VALUE_NONE,
-                        'enables the interactive mode'
-                    );
+                    if (array_key_exists('options', $workflowConfiguration)) {
 
-                    $this->workflowConfiguration = $workflowConfiguration['options'];
-
-                    foreach ($workflowConfiguration['options'] as $_option => $_optionConfiguration) {
+                        // add the config
                         $this->addOption(
-                            $_option,
-                            array_key_exists('short', $_optionConfiguration) ? $_optionConfiguration['short'] : null,
-                            $_optionConfiguration['required'],
-                            $_optionConfiguration['description'],
-                            array_key_exists('default', $_optionConfiguration) ? $_optionConfiguration['default'] : null
+                            'interactive',
+                            'i',
+                            InputOption::VALUE_NONE,
+                            'enables the interactive mode'
                         );
+
+                        $this->workflowConfiguration = $workflowConfiguration['options'];
+
+                        foreach ($workflowConfiguration['options'] as $_option => $_optionConfiguration) {
+                            $this->addOption(
+                                $_option,
+                                array_key_exists('short', $_optionConfiguration) ? $_optionConfiguration['short'] : null,
+                                $_optionConfiguration['required'],
+                                $_optionConfiguration['description'],
+                                array_key_exists('default', $_optionConfiguration) ? $_optionConfiguration['default'] : null
+                            );
+                        }
                     }
                 }
             }
