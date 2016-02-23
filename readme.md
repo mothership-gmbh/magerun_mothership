@@ -119,7 +119,9 @@ magerun mothership:reports:observerstimes
 
 ## <a name="mothership_base_workflow_render"></a>mothership:workflow:render
 
-Super fancy graph generator. The graph creation depends on [graphviz](www.graphviz.org/), so ensure that you have installed it first,
+Super fancy graph generator! Instead of running our state machines, you can also render them for easier debugging. 
+
+The graph creation depends on [graphviz](www.graphviz.org/), so ensure that you have installed it first,
 so that you can run the ```dot``` command. Use ```apt-get install graphviz``` in debian environments.
 
 
@@ -130,6 +132,8 @@ magerun mothership:workflow:render --config=Demo.yaml
 The created graph will look like this one. Check the [source file](./src/app/etc/mothership/workflows/Demo.yaml)
 
 ![Logo](./src/app/etc/mothership/workflows/Demo.yaml.png)
+
+And yes, you can run this workflow exactly like displayed in the graph. Check the next command.
 
 
 ## <a name="mothership_base_workflow_run"></a>mothership:workflow:run
