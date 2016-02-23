@@ -15,7 +15,7 @@ This repository contains a list of extensions, which might be useful for your de
 | mothership:base:images:resize 	| Resize images 	|  	|
 | mothership:base:reports:observerstimes 	|  	|  	|
 | mothership:base:workflow:list 	|  	|  mothership/state_machine	|
-| mothership:base:workflow:render 	|  	|  mothership/state_machine, graphviz	|
+| [mothership:base:workflow:render](#mothership_base_workflow_render) 	|  	|  mothership/state_machine, graphviz	|
 | [mothership:base:workflow:run](#mothership_base_workflow_run) 	|  Runs a state machine defined by a workflow	| mothership/state_machine 	|
 
 # Installation
@@ -105,7 +105,7 @@ For more fun, use the official Mothership Image.
 Handy command, to minify the base-images. This will create a new directory named after the ```--dir``` parameter and create a smaller version of all existing images. Please be aware that in case you have a new image file with the same name, this command will not recognize that. In this case remove the existing file from the resized image directory and rerun the command
 
 ```magerun typehype:images:resize --dir=thumbnails --size=100```
-    q q
+
 ## mothership:reports:observerstimes
 This is a *magerun* command to create a *csv* reports to find all the events and relative observers called for each 
 Magento page called in the browser during navigation.
@@ -117,6 +117,21 @@ Magento page called in the browser during navigation.
 magerun mothership:reports:observerstimes
 ```
 
+## <a name="mothership_base_workflow_render"></a>mothership:workflow:render
+
+Super fancy graph generator. The graph creation depends on [graphviz](www.graphviz.org/), so ensure that you have installed it first,
+so that you can run the ```dot``` command. Use ```apt-get install graphviz``` in debian environments.
+
+
+```
+magerun mothership:workflow:render --config=Demo.yaml
+```
+
+The created graph will look like this one. Check the [source file](./src/app/etc/mothership/workflows/Demo.yaml)
+
+![Logo](./src/app/etc/mothership/workflows/Demo.yaml.png)
+
+
 ## <a name="mothership_base_workflow_run"></a>mothership:workflow:run
 
 Run a workflow from the directory ```<root>/app/etc/mothership/workflows```. This feature is very powerful and is being used in a lot of scenarios with a lot of
@@ -124,7 +139,16 @@ complexity. It basically depends on [Mothership State Machine](https://github.co
 
 ```
 magerun mothership:workflow:run --config=yourworkflow.yaml
+magerun mothership:workflow:run --config=yourworkflow.yaml --help
+magerun mothership:workflow:run --config=yourworkflow.yaml --interactive
+magerun mothership:workflow:run --config=yourworkflow.yaml --queue
 ```
+
+In additition to the plain PHP state machine implementation, this command has the following features:
+
+* Parses a new node in the workflow definition file.
+* Interactive mode: Each option can be set with a dialog.
+* Queue: Use the queue php-resque to run workflows in the background.
 
 [More doc](./doc/base_workflow_run.md)
 
