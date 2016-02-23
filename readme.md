@@ -5,8 +5,8 @@ This repository contains a list of extensions, which might be useful for your de
 
 | Command 	| Description 	| Requirements 	|
 |----------------------------------------	|---------------------------------------------------------	|------------------------------------------------------------	|
-| mothership:base:environment:dump 	|  	|  	|
-| mothership:base:environment:import 	|  	|  	|
+| [mothership:base:environment:dump](#mothership_base_environment_dump) 	|  	|  	|
+| [mothership:base:environment:import](#mothership_base_environment_import) 	|  	|  	|
 | mothership:base:feed:export 	|  	| mothership/feed_export 	|
 | mothership:base:fixtures:product 	| Creates a yaml fixture file for ecomDev PHPunit test 	|  	|
 | mothership:base:images:clean 	| Remove unused images from the catalog/product directory 	|  	|
@@ -16,15 +16,14 @@ This repository contains a list of extensions, which might be useful for your de
 | mothership:base:reports:observerstimes 	|  	|  	|
 | mothership:base:workflow:list 	|  	|  mothership/state_machine	|
 | mothership:base:workflow:render 	|  	|  mothership/state_machine, graphviz	|
-| mothership:base:workflow:run 	|  	| mothership/state_machine 	|
+| [mothership:base:workflow:run](#mothership_base_workflow_run) 	|  Runs a state machine defined by a workflow	| mothership/state_machine 	|
 
-Installation
-============
+# Installation
 
 There are currently three different ways to include the magerun-components. I will describe every method. Please check the offical [documentation](http://magerun.net/introducting-the-new-n98-magerun-module-system/) for further questions. The preferred method imho should be the composer way.
 
-Method 1 - the easiest one
---------------------------
+## Method 1 - the easiest one
+
 This method needs you to have a home folder where all the custom modules will be located.
 
 * Execute the following snippet
@@ -40,8 +39,7 @@ cd ~/.n98-magerun/modules/
 git clone https://github.com/mothership-gmbh/magerun_mothership.git
 ```
 
-Method 2 - still easy, but more environment specific
-----------------------------------------------------
+## Method 2 - still easy, but more environment specific
 While there is one way to centralize all your modules i prefer to have environment specific modules. 
 
 * To achieve this, you just need to create a folder within your Magento project folder.
@@ -58,8 +56,7 @@ cd MAGENTO_ROOT/lib/n98-magerun/modules
 git clone https://github.com/mothership-gmbh/magerun_mothership.git
 ```
 
-Method 3 - composer.json
----------------------------------------
+## Method 3 - composer.json
 just add this require to your *composer.json*. Please check the latest tagged version by yourself. 
 
 ```
@@ -70,53 +67,21 @@ just add this require to your *composer.json*. Please check the latest tagged ve
 ```
 
 
-Commands
-========
+# Commands
 
-mothership:env:dump
--------------------
-Dump all configuration-settings from the core_config Table as PHP array. You need to have one file named config.php. Just copy the file
+## <a name="mothership_base_environment_dump"></a>mothership:environment:dump
 
-```
-cd PATH/src/Mothership/Environment/resource
-cp config.example.php config.php
-```
-
-Now edit the config.php and config your settings. You might exclude one or several configuration settings with a regex argument. This might be useful if you want to
-build a new template for your import.
-
-Example:
+Dump all settings from the table ```core_config_data``` matching a given regular expression. Depends on a configuration file.
 
 ```
-// config.php
-
-return array(
-
-    'dump' => array(
-        /**
-         * Excluded paths from the core_config_data table.
-         * You can use regex to exclude the paths as the script will use preg_match
-         */
-        'excluded_paths' => array(
-            '/^carriers.*/',
-            '/^google.*/',
-            '/^sales.*/',
-            '/^sales_pdf.*/',
-            '/^sales_email.*/',
-            '/^catalog.*/',
-            '/^newsletter.*/',
-            '/^payment.*/',
-        )
-    ),
-
-    'import' => array(
-
-    )
-);
+mothership:env:dump --
 ```
 
-mothership:env:import
----------------------
+[read more ...](./doc/base_environment_dump.md)
+
+
+##  <a name="mothership_base_environment_import"></a>mothership:environment:import
+
 Import the configuration settings by overwriting the existing configurations. There is one example file ```settings.example.php```.
 Just copy the file as ```settings.php``` and customize the settings for your needs.
 
@@ -125,9 +90,9 @@ Just copy the file as ```settings.php``` and customize the settings for your nee
  You need to have some files in the directory ```Mothership\Environment\resource```. They should be named like ```environment_anyname```.
  If there is more then one file, name it like your environments. Please define one file as a fallback.
  
+[read more ...](./doc/base_environment_import.md)
  
-mothership:images:create-dummy
-------------------------------
+## mothership:images:create-dummy
 
 This command will create an image file for each entry in the table ```catalog_product_entity_media_gallery```. Just ensure, that you have one file called ```dummy.jpg``` in your ```media``` directory. This can be useful if you have to deal with large product data but do not want to download a gigazillion large directory. 
 
@@ -135,44 +100,31 @@ For more fun, use the official Mothership Image.
 
 ![Logo](https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xap1/v/t1.0-1/p160x160/1461677_413147242145236_1945192833_n.png?oh=ef95d2bc628a458430a24a3c06dd66f0&oe=56890054&__gda__=1456143606_da6782209cad961eb54f9f020c624785)
 
-mothership:images:resize
-------------------------
+## mothership:images:resize
 
 Handy command, to minify the base-images. This will create a new directory named after the ```--dir``` parameter and create a smaller version of all existing images. Please be aware that in case you have a new image file with the same name, this command will not recognize that. In this case remove the existing file from the resized image directory and rerun the command
 
 ```magerun typehype:images:resize --dir=thumbnails --size=100```
-
-mothership:reports:observerstimes
-------------------------
+    q q
+## mothership:reports:observerstimes
 This is a *magerun* command to create a *csv* reports to find all the events and relative observers called for each 
 Magento page called in the browser during navigation.
+
+[More doc](./doc/base_reports_readme.md)
+
 
 ```
 magerun mothership:reports:observerstimes
 ```
 
-# mothership:workflow:run
+## <a name="mothership_base_workflow_run"></a>mothership:workflow:run
 
-This is a magerun command to run a workflow. It depends on the [Mothership State Machine](https://github.com/mothership-gmbh/state_machine) and is basically a comfortable wrapper for the native method.
-
-```
-magerun mothership:workflow:run
-```
-
-## Recommended directory structure
+Run a workflow from the directory ```<root>/app/etc/mothership/workflows```. This feature is very powerful and is being used in a lot of scenarios with a lot of
+complexity. It basically depends on [Mothership State Machine](https://github.com/mothership-gmbh/state_machine) and is a helper to run a finite state machine in a Magento environment.
 
 ```
-# directory path
+magerun mothership:workflow:run --config=yourworkflow.yaml
 ```
 
-## modman symlinks
+[More doc](./doc/base_workflow_run.md)
 
-Please directly link s
-
-```
-sdf
-```
-
-
-
-[More doc](https://github.com/mothership-gmbh/magerun_mothership/tree/master/src/lib/n98-magerun/modules/mothership_addons/src/Mothership_Addons/Reports)
