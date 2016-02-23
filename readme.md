@@ -1,12 +1,27 @@
 Mothership Magerun Addons
 =========================
-This repository contains Mothership specific addons and is a collection of useful components. 
+This repository contains a list of extensions, which might be useful for your development workflow.
 
+
+| Command 	| Description 	| Requirements 	|
+|----------------------------------------	|---------------------------------------------------------	|------------------------------------------------------------	|
+| mothership:base:environment:dump 	|  	|  	|
+| mothership:base:environment:import 	|  	|  	|
+| mothership:base:feed:export 	|  	| mothership/feed_export 	|
+| mothership:base:fixtures:product 	| Creates a yaml fixture file for ecomDev PHPunit test 	|  	|
+| mothership:base:images:clean 	| Remove unused images from the catalog/product directory 	|  	|
+| mothership:base:images:dummy 	| For each missing image, create a dummy file 	| Create a dummy file 	|
+| mothership:base:images:missing 	| Identify missing images 	|  	|
+| mothership:base:images:resize 	| Resize images 	|  	|
+| mothership:base:reports:observerstimes 	|  	|  	|
+| mothership:base:workflow:list 	|  	|  mothership/state_machine	|
+| mothership:base:workflow:render 	|  	|  mothership/state_machine, graphviz	|
+| mothership:base:workflow:run 	|  	| mothership/state_machine 	|
 
 Installation
 ============
 
-There are currently three different ways to include the magerun-components. I will describe two methods. Please check the offical [documentation](http://magerun.net/introducting-the-new-n98-magerun-module-system/).
+There are currently three different ways to include the magerun-components. I will describe every method. Please check the offical [documentation](http://magerun.net/introducting-the-new-n98-magerun-module-system/) for further questions. The preferred method imho should be the composer way.
 
 Method 1 - the easiest one
 --------------------------
@@ -45,23 +60,15 @@ git clone https://github.com/mothership-gmbh/magerun_mothership.git
 
 Method 3 - composer.json
 ---------------------------------------
-just add this require to your *composer.json*
+just add this require to your *composer.json*. Please check the latest tagged version by yourself. 
 
 ```
-"require": {
-        "mothership/mothership_magerun":"dev-master"
-        }
+"require": 
+{
+	"mothership/mothership_magerun":"<latest_tagged_version>"
+}
 ```
 
-
-Test it
-=======
-To test, if it works, just run ```magerun``` from your Magento-Project folder. You should see:
-
-```
-mothership:env:import
-mothership:env:dump
-```
 
 Commands
 ========
