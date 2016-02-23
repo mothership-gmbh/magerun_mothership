@@ -1,53 +1,22 @@
 <?php
 /**
- * Magento
+ * This file is part of the Mothership GmbH code.
  *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
- *
- * PHP Version 5.3
- *
- * @category  Mothership
- * @package   Mothership_Shell
- * @author    Don Bosco van Hoi <vanhoi@mothership.de>
- * @copyright 2013 Mothership GmbH
- * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @link      http://www.mothership.de/
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
+namespace Mothership\Magerun\Base\Command\Images;
 
-namespace Mothership_Addons\Images;
-
-use N98\Magento\Command\Database\AbstractDatabaseCommand;
-use N98\Util\Console\Helper\DatabaseHelper;
-use N98\Util\OperatingSystem;
-use Symfony\Component\Console\Helper\DialogHelper;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
+use \Symfony\Component\Console\Input\InputInterface;
+use \Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use Symfony\Component\Finder\Finder;
 
 /**
- * Class MissingCommand
+ * Class ResizeCommand.
  *
- * @category  Mothership
- * @package   Mothership_ResizeCommand
  * @author    Don Bosco van Hoi <vanhoi@mothership.de>
- * @copyright 2015 Mothership GmbH
+ * @copyright 2016 Mothership GmbH
+ *
  * @link      http://www.mothership.de/
  */
 class ResizeCommand extends AbstractCommand
@@ -59,6 +28,8 @@ class ResizeCommand extends AbstractCommand
      */
     protected $_resized_path = 'resized';
 
+    protected $description = 'Resize the images';
+
     /**
      * Command config
      *
@@ -66,10 +37,8 @@ class ResizeCommand extends AbstractCommand
      */
     protected function configure()
     {
-        $this
-            ->setName('mothership:images:resize')
-            ->setDescription('Generates small images')
-            ->addOption(
+        parent::configure();
+        $this->addOption(
             'dir',
             null,
             InputOption::VALUE_REQUIRED,
@@ -82,14 +51,10 @@ class ResizeCommand extends AbstractCommand
      *
      * @return int|void
      */
-    protected function execute(
-        \Symfony\Component\Console\Input\InputInterface $input,
-        \Symfony\Component\Console\Output\OutputInterface $output
-    ) {
-        $this->detectMagento($output);
-        if ($this->initMagento()) {
-
-            /**
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        parent::execute($input, $output);
+         /**
              *
              */
             if ($input->getOption('dir')) {
@@ -112,7 +77,7 @@ class ResizeCommand extends AbstractCommand
             foreach ($rows as $_row) {
                 $this->resizeImg($_row['value'], 250);
             }
-        };
+
     }
 
     /**

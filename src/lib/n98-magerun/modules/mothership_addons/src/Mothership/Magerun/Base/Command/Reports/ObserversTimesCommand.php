@@ -1,37 +1,17 @@
 <?php
-
 /**
- * Magento
+ * This file is part of the Mothership GmbH code.
  *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
- *
- * @category  Mothership
- * @package   Mothership_Reports
- * @author    Maurizio Brioschi <brioschi@mothership.de>
- * @copyright Copyright (c) 2015 Mothership GmbH
- * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @link      http://www.mothership.de/
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
-namespace Mothership_Addons\Reports;
+namespace Mothership\Magerun\Base\Command\Reports;
 
-use N98\Magento\Command\AbstractMagentoCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+
+use \Mothership\Magerun\Base\Command\AbstractMagentoCommand;
 
 /**
  * This command provide methods to retrieve a csv reports with all the events and relative observers called for each
@@ -48,11 +28,15 @@ class ObserversTimesCommand extends AbstractMagentoCommand
     protected $file_report = [];
     protected $timestampfile;
 
+    protected $description = 'Create a csv report with the execution workflow and observers execution times';
+
+    /**
+     *
+     */
     protected function configure()
     {
-        $this->setName('mothership:reports:observerstimes')
-            ->setDescription('Create a csv report with the execution workflow and observers execution times')
-            ->addOption(
+        parent::configure();
+        $this->addOption(
                 'bootleneck',
                 null,
                 InputOption::VALUE_OPTIONAL,
@@ -68,6 +52,7 @@ class ObserversTimesCommand extends AbstractMagentoCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        parent::execute($input, $output);
         $this->handleSygnal();
         $this->output = $output;
         $this->magento_root = $this->getApplication()->getMagentoRootFolder();

@@ -20,9 +20,9 @@
 * needs please refer to http://www.magentocommerce.com for more information.
 *
 * @category  Mothership
-* @package   Mothership_Addons
+* @package   Mothership_Magerun
 * @author    Don Bosco van Hoi<vanhoi@mothership.de>
-* @copyright Copyright (c) 2015 Mothership GmbH
+* @copyright Copyright (c) 2016 Mothership GmbH
 * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
 * @link      http://www.mothership.de/
 */
@@ -33,14 +33,23 @@
             <version>1.0.0</version>
         </Mothership_Addons>
     </modules>
+
     <global>
 
         <composer_vendor_path><![CDATA[{{root_dir}}/../vendor]]></composer_vendor_path>
-
         <helpers>
             <mothership_addons>
                 <class>Mothership_Addons_Helper</class>
             </mothership_addons>
         </helpers>
     </global>
+
+    <default>
+        <mothership_magerun>
+            <queue>
+                <host>localhost:6379</host>
+                <name>intex-import-dev</name>
+            </queue>
+        </mothership_magerun>
+    </default>
 </config>

@@ -1,22 +1,30 @@
 autoloaders:
   Mothership_Addons: %module%/src
+  Mothership\Magerun\Base: %module%/src
 
 commands:
   customCommands:
-    - Mothership_Addons\Environment\ImportCommand
-    - Mothership_Addons\Environment\DumpCommand
 
-    - Mothership_Addons\Images\CleanCommand
-    - Mothership_Addons\Images\MissingCommand
-    - Mothership_Addons\Images\ResizeCommand
-    - Mothership_Addons\Images\DummyCommand
+    # commands for the workflow
+    - Mothership\Magerun\Base\Command\Environment\ImportCommand
+    - Mothership\Magerun\Base\Command\Environment\DumpCommand
 
-    - Mothership_Addons\Fixtures\ProductCommand
+    # commands for the feed export
+    - Mothership\Magerun\Base\Command\Feed\ExportCommand
 
-    - Mothership_Addons\Feed\ExportCommand
-    - Mothership_Addons\Reports\ObserversTimesCommand
+    # command for images
+    - Mothership\Magerun\Base\Command\Images\CleanCommand
+    - Mothership\Magerun\Base\Command\Images\MissingCommand
+    - Mothership\Magerun\Base\Command\Images\ResizeCommand
+    - Mothership\Magerun\Base\Command\Images\DummyCommand
 
+    # commands for fixtures
+    - Mothership\Magerun\Base\Command\Fixtures\ProductCommand
 
-    - Mothership_Addons\Workflow\RunCommand
-    - Mothership_Addons\Workflow\ListCommand
-    - Mothership_Addons\Workflow\RenderCommand
+    # commands for observer time measure
+    - Mothership\Magerun\Base\Command\Reports\ObserversTimesCommand
+
+    # Commands for the workflow
+    - Mothership\Magerun\Base\Command\Workflow\RunCommand
+    - Mothership\Magerun\Base\Command\Workflow\RenderCommand
+    - Mothership\Magerun\Base\Command\Workflow\ListCommand
