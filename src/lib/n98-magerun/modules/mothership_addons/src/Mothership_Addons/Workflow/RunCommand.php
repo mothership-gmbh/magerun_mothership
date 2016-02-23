@@ -227,6 +227,7 @@ HELP;
                 ], $this->getArguments($input, $output));
 
                 $this->printCommand($args, $output);
+                \Resque::setBackend(\Mage::getStoreConfig('mothership_intex/queue/host'));
                 \Resque::enqueue(\Mage::getStoreConfig('mothership_intex/queue/name'), '\Mothership\Magerun\Queue\Jobs\General', $args, true);
             } else {
                 $stateMachine = new \Mothership\StateMachine\StateMachine($input_path . '/' . $filename);
