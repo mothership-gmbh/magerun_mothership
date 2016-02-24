@@ -1,1 +1,0 @@
-../magento-hackathon/magento-composer-installer/bin/magento-composer-installer.php
