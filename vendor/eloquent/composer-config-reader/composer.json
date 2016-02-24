@@ -1,0 +1,29 @@
+{
+    "name": "eloquent/composer-config-reader",
+    "description": "A light-weight component for reading Composer configuration files.",
+    "keywords": ["composer", "configuration", "reader", "parser"],
+    "homepage": "https://github.com/eloquent/composer-config-reader",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Erin Millard",
+            "email": "ezzatron@gmail.com",
+            "homepage": "http://ezzatron.com/"
+        }
+    ],
+    "require": {
+        "php": ">=5.3",
+        "eloquent/enumeration": "~5",
+        "eloquent/liberator": "~1",
+        "icecave/isolator": "~2",
+        "justinrainbow/json-schema": "~1"
+    },
+    "require-dev": {
+        "icecave/archer": "~1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Eloquent\\Composer\\Configuration\\": "src"
+        }
+    }
+}

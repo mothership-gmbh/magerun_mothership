@@ -1,0 +1,24 @@
+
+platform: 'x86'
+build: off
+clone_folder: C:\projects\random\customer\magento
+environment:
+  COMPOSER_NO_INTERACTION: 1
+cache:
+  - C:\Users\appveyor\AppData\Roaming\Composer
+install: 
+  - cinst OpenSSL.Light
+  - SET PATH=C:\Program Files\OpenSSL;%PATH%
+  - cinst php 
+  - cd c:\tools\php
+  - copy php.ini-production php.ini
+  - echo date.timezone="UTC" >> php.ini
+  - echo extension_dir=ext >> php.ini
+  - echo extension=php_openssl.dll >> php.ini
+  - SET PATH=C:\tools\php;%PATH%
+  - cd C:\projects\random\customer\magento
+  - php -r "readfile('http://getcomposer.org/installer');" | php
+  - php composer.phar install --prefer-dist --no-interaction
+test_script:
+  - cd C:\projects\random\customer\magento
+  - vendor\bin\phpunit.bat --testsuite Unit

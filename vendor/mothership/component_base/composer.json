@@ -1,0 +1,33 @@
+{
+  "name": "mothership/component_base",
+  "type": "library",
+  "description": "Mothership base library",
+  "keywords": [],
+  "homepage": "https://www.mothership.de",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Don Bosco van Hoi",
+      "email": "vanhoi@mothership.de"
+    },
+    {
+      "name": "Maurizio Brioschi",
+      "email": "brioschi@mothership.de"
+    }
+  ],
+  "require": {
+    "php": ">=5.5",
+    "symfony/console": "2.7.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.8.*",
+    "phpunit/dbunit": "1.4.*"
+  },
+  "minimum-stability" : "dev",
+  "autoload": {
+    "psr-4": {
+      "Mothership\\Exception\\": "src/Mothership/Exception/",
+      "Mothership\\Tests\\": "src/Mothership/Tests/"
+    }
+  }
+}

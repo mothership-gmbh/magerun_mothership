@@ -1,0 +1,11 @@
+[
+    {
+        "packageName": "firegento\/psr0autoloader",
+        "version": "9999999-dev-c5e913c72b856471086a25acb3b5593bbef220f1",
+        "installedFiles": [
+            "\/app\/code\/community\/Hackathon\/PSR0Autoloader",
+            "\/app\/etc\/modules\/Hackathon_PSR0Autoloader.xml",
+            "\/shell\/autoloader_initializer.php"
+        ]
+    }
+]

@@ -1,0 +1,1 @@
+../../vendor/firegento/psr0autoloader/shell/autoloader_initializer.php
