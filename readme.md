@@ -1,4 +1,6 @@
-Mothership Magerun Addons
+Mothership Magerun Addons 
+
+![](https://travis-ci.org/mothership-gmbh/magerun_mothership.svg?branch=develop)
 =========================
 This repository contains a list of extensions, which might be useful for your development workflow.
 
