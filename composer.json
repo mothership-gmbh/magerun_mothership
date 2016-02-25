@@ -5,7 +5,7 @@
   "description": "Mothership Admin Panel for Magento",
   "homepage": "https://www.mothership.de",
   "require": {
-    "php": ">=5.3",
+    "php": ">=5.4",
     "magento-hackathon/magento-composer-installer": "*",
     "symfony/yaml": "2.7",
     "mothership/state_machine": ">=v1.0 <2.0",
