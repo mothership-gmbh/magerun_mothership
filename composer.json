@@ -2,7 +2,7 @@
   "name": "mothership/mothership_magerun",
   "license": "GPL-3.0",
   "type": "magento-module",
-  "description": "Mothership Admin Panel for Magento",
+  "description": "Mothership Magerun Extensions for Magento",
   "homepage": "https://www.mothership.de",
   "require": {
     "php": ">=5.4",

@@ -28,6 +28,13 @@ abstract class AbstractMagentoCommand extends \N98\Magento\Command\Database\Abst
     protected $description = '<error>GENERIC DESCRIPTION. REPLACE IT</error>';
 
     /**
+     * If we set this flag to false, the command will not be displayed in the Mothership Namespace
+     *
+     * @var bool
+     */
+    protected $useMothershipNamespace = true;
+
+    /**
      * Generic command name creator. If you follow the Namespace convention, then
      * the commands will be created dynamically.
      *
@@ -41,10 +48,30 @@ abstract class AbstractMagentoCommand extends \N98\Magento\Command\Database\Abst
         foreach ($classExploded as $part) {
             $part = strtolower($part);
 
-            if ('magerun' != $part && 'command' != $part) {
+            /**
+             * Pattern to simplify commands.
+             *
+             * before:
+             * mothership:magerun:<project>:command:<command>
+             *
+             * after:
+             * mothership:<project>:<command>
+             *
+             * without mothership:
+             *
+             * <project>:<command>
+             */
+            $ignorePatterns = ['magerun', 'command'];
+
+            if (false === $this->useMothershipNamespace) {
+                $ignorePatterns[] = 'mothership';
+            }
+
+            if (!in_array($part, $ignorePatterns)) {
                 if (strpos($part, 'command') !== false) {
                     $part = str_replace('command', '', $part);
                 }
+
                 $command[] = $part;
             }
         }

@@ -65,7 +65,7 @@ class RunCommand extends AbstractMagentoCommand
                 'queue',
                 null,
                 1,
-                'Put the workflow into a queue instead of running it directly'
+                'Process the workflow in php-resque. <comment>Enable the queue in the Magento backend!</comment>'
             );
 
             // add the config
@@ -203,6 +203,7 @@ HELP;
 
             $this->printCommand($args, $output);
 
+            // TODO: Check if queue is enabled
             \Resque::setBackend(\Mage::getStoreConfig('mothership_intex/queue/host'));
             \Resque::enqueue(\Mage::getStoreConfig('mothership_intex/queue/name'), '\Mothership\Magerun\Queue\Jobs\General', $args, true);
         } else {

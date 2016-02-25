@@ -49,6 +49,7 @@
             <queue>
                 <host>localhost:6379</host>
                 <name>intex-import-dev</name>
+                <enabled>0</enabled>
             </queue>
         </mothership_magerun>
     </default>

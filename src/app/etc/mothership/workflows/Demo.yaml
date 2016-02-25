@@ -4,62 +4,32 @@ class:
   args: []
 
 #definition of the states and transition...the order establishes the transition from one state to another
-#the name of each state is NOT case sensitive
 states:
-
   # initialize the logging and stuff
   start:
     type: initial
 
   prepare_collection:
     type: normal
-    transitions_from:   [start]
+    transitions_from:   [start, {status:  do_it_again, result:  true}]
     transitions_to:     [prepare_collection]
 
   process_items:
     type: normal
-    transitions_from:   [prepare_collection]
+    transitions_from:   [prepare_collection, {status:  has_more, result:  true}, process_items]
     transitions_to:     [process_items]
-
-  trinke_bier:
-    type: normal
-    transitions_from:   [process_items, {status:  has_more, result:  true}]
-    transitions_to:     [trinke_bier]
-
-  trinke_helles:
-    type: normal
-    transitions_from:   [{status:  trinke_bier, result:  helles}]
-    transitions_to:     [trink_bier]
-
-  trinke_pils:
-    type: normal
-    transitions_from:   [{status:  trinke_bier, result:  pils}]
-    transitions_to:     [trink_bier]
 
   has_more:
     type: normal
-    transitions_from:   [trinke_pils, trinke_helles]
+    transitions_from:   [process_items]
     transitions_to:     [has_more]
+
+  do_it_again:
+    type: normal
+    transitions_from:   [{status:  has_more, result:  false}]
+    transitions_to:     [do_it_again]
 
   finish:
     type: final
-    transitions_from:   [{status:  has_more, result:  false}]
+    transitions_from:   [{status:  do_it_again, result:  false}]
     transitions_to:     [finish]
-
-options:
-
-  auf-ex:
-    description: "Clean the jobs from the queue system? [0,1]"
-    required: 1 # none=0, required=2, optional=4, array=8
-
-
-  # the environment
-  bier:
-    description: 'Welches Bier'
-    short: b
-    required: 2 # none=0, required=2, optional=4, array=8
-    options:
-      - Helles
-      - Weizen
-      - Pils
-    default: Weizen
