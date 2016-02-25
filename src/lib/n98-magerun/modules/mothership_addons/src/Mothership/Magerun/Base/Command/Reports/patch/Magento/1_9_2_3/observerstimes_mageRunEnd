@@ -1,0 +1,3 @@
+fflush($fp);            // flush output before releasing the lock
+flock($fp, LOCK_UN);
+fclose($fp);

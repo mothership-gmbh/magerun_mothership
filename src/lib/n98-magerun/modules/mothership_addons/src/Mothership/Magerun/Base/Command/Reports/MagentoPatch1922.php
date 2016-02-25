@@ -6,10 +6,8 @@
  * file that was distributed with this source code.
  */
 namespace Mothership\Magerun\Base\Command\Reports;
-use Mothership\Magerun\Base\Command\PatchInterface;
-
 /**
- * Class MagetoPatch1_9_2_2
+ * Class MagetoPatch1922
  *
  * @category   Mothership
  * @package    Mothership_Reports
@@ -17,11 +15,8 @@ use Mothership\Magerun\Base\Command\PatchInterface;
  * @copyright  2016 Mothership Gmbh
  * @link       http://www.mothership.de/
  */
-class MagentoPatch1_9_2_2 implements PatchInterface
+class MagentoPatch1922 extends AbstractMagentoPatch
 {
-    protected $magento_root;
-    protected $mage_php; //Mage.php original file from magento
-    protected $app_php; //App.php original file from Magento
 
     /**
      * add the patch
@@ -32,12 +27,10 @@ class MagentoPatch1_9_2_2 implements PatchInterface
      */
     function addPatch($magentoRoot)
     {
-        $this->magento_root = $magentoRoot;
+        parent::addPatch($magentoRoot);
 
-        $this->mage_php = file_get_contents($this->magento_root . '/app/Mage.php');
-
-        $patch_mageRun = file_get_contents(dirname(__FILE__) . "/patch/observerstimes_mageRun");
-        $patch_mageRunEnd = file_get_contents(dirname(__FILE__) . "/patch/observerstimes_mageRunEnd");
+        $patch_mageRun = file_get_contents($this->pathDir . "/patch/observerstimes_mageRun");
+        $patch_mageRunEnd = file_get_contents($this->pathDir . "/patch/observerstimes_mageRunEnd");
 
         $mage_log = str_replace("Varien_Profiler::start('mage');", "Varien_Profiler::start('mage');" . $patch_mageRun,
             $this->mage_php);
@@ -46,11 +39,10 @@ class MagentoPatch1_9_2_2 implements PatchInterface
 
         file_put_contents($this->magento_root . "/app/Mage.php", $mage_log);
 
-        $this->app_php = file_get_contents($this->magento_root . "/app/code/core/Mage/Core/Model/App.php");
         $app_log = str_replace("Varien_Profiler::start('OBSERVER: '",
             "\$startime=microtime(true);Varien_Profiler::start('OBSERVER: '", $this->app_php);
 
-        $patch_observer = file_get_contents(dirname(__FILE__) . "/patch/observerstimes_observer");
+        $patch_observer = file_get_contents($this->pathDir . "/patch/observerstimes_observer");
 
         $app_log = str_replace("Varien_Profiler::stop('OBSERVER: '", $patch_observer . "Varien_Profiler::stop
             ('OBSERVER: '", $app_log);
@@ -58,12 +50,12 @@ class MagentoPatch1_9_2_2 implements PatchInterface
     }
 
     /**
-     * remove patch
+     * Set the path directory of the patch
+     *
      * @return void
      */
-    function removePatch()
+    protected function setPathDirectory()
     {
-        file_put_contents($this->magento_root . "/app/Mage.php", $this->mage_php);
-        file_put_contents($this->magento_root . "/app/code/core/Mage/Core/Model/App.php", $this->app_php);
+        return __DIR__ . '/patch/Magento/1_9_2_2';
     }
 }

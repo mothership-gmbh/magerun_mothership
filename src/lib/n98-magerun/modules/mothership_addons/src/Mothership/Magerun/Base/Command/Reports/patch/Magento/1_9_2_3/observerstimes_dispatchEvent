@@ -1,0 +1,2 @@
+$fp = $GLOBALS['fp'];
+fputcsv($fp, [$name,"","","","",""],';');

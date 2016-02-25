@@ -63,9 +63,7 @@ class ObserversTimesCommand extends AbstractMagentoCommand
     {
 
         parent::execute($input, $output);
-        $patchFactory = new MagentoPatchFactory(\Mage::getVersion());
-        $this->patch = $patchFactory->getMagentoPatchClass();
-
+        $this->handleSygnal();
         $this->output = $output;
         $this->observerlog_dir = $this->magento_root . "/observerlogs";
         if (!file_exists($this->observerlog_dir)) {
@@ -80,29 +78,33 @@ class ObserversTimesCommand extends AbstractMagentoCommand
         }
 
         $this->detectMagento($output);
+        if ($this->initMagento()) {
+            $this->output->writeln("<info>Applying the patch...</info>");
 
-        $this->output->writeln("<info>Applying the patch...</info>");
-        $this->patch->addPatch($this->getApplication()->getMagentoRootFolder());
-        $this->output->writeln("<info>Start reporting...</info>");
-        $this->output->writeln("<warning>Press Ctrl+z or Ctrl+c to stop!</warning>");
+            $factory = new MagentoPatchFactory(\Mage::getVersion());
+            $this->patch = $factory->getMagentoPatchClass();
+            $this->patch->addPatch($this->getApplication()->getMagentoRootFolder());
 
-        $this->file_report = scandir($this->observerlog_dir);
-        $this->timestampfile = filemtime($this->observerlog_dir . '/timestamp');
-        if ($bootleneck) {
-            while (true) {
-                $this->output->write("<info>.</info>");
-                $newfiles = scandir($this->observerlog_dir);
-                if (count($newfiles) > count($this->file_report)) {
-                    $this->checkBootleneck($newfiles);
+            $this->output->writeln("<info>Start reporting...</info>");
+            $this->output->writeln("<warning>Press Ctrl+z or Ctrl+c to stop!</warning>");
+
+            $this->file_report = scandir($this->observerlog_dir);
+            $this->timestampfile = filemtime($this->observerlog_dir . '/timestamp');
+            if ($bootleneck) {
+                while (true) {
+                    $this->output->write("<info>.</info>");
+                    $newfiles = scandir($this->observerlog_dir);
+                    if (count($newfiles) > count($this->file_report)) {
+                        $this->checkBootleneck($newfiles);
+                    }
+
+                    pcntl_sigtimedwait(array(SIGTERM), $info, 1);
                 }
-
+            } else {
                 pcntl_sigtimedwait(array(SIGTERM), $info, 1);
             }
-        } else {
-            pcntl_sigtimedwait(array(SIGTERM), $info, 1);
+
         }
-
-
         $this->output->writeln("<error>Init Magento fail</error>");
 
     }

@@ -6,8 +6,8 @@
  * file that was distributed with this source code.
  */
 namespace Mothership\Magerun\Base\Command\Reports;
+
 use Mothership\Magerun\Base\Command\Reports\MagentoPatch1_9_2_3;
-use Mothership\Magerun\Base\Command\Reports\MagentoPatch1_9_2_2;
 /**
  * Class AbstractMagentoPatchFactory
  *
@@ -20,7 +20,6 @@ use Mothership\Magerun\Base\Command\Reports\MagentoPatch1_9_2_2;
 class AbstractMagentoPatchFactory
 {
     protected $magentoVersion;
-    protected $patchClass;
 
     /**
      * AbstractMagentoPatchFactory constructor.
@@ -29,42 +28,25 @@ class AbstractMagentoPatchFactory
      */
     public function __construct($magentoV)
     {
-        $this->magentoVersion = str_replace(".", "_", $magentoV);
-    }
-
-    /**
-     * Set the class for the patch, all the patch must be in the subfolder patch/Magento
-     * The method set the patch that match with the magento version
-     *
-     * @throws \Exception
-     */
-    protected function setPatchClass()
-    {
-        $magentoVersions = scandir(__DIR__ . '/patch/Magento');
-        foreach ($magentoVersions as $dir) {
-            if ($dir != '.' && $dir != '..' && is_dir(__DIR__ . '/patch/Magento/' . $dir)) {
-                if ($dir == $this->magentoVersion) {
-                    $this->patchClass = "MagentoPatch" . $this->magentoVersion;
-                }
-            }
-        }
-
-        if (is_null($this->patchClass)) {
-            throw new \Exception("Patch Class for this Magento version is not found");
-        }
+        $this->magentoVersion = $magentoV;
     }
 
     /**
      * Get the class for the patch, in base of the Magento version
      *
      * @return Mothership\Magerun\Base\Command\Reports\PatchInterface
+     *
+     * @throws \Exception
      */
     public function getMagentoPatchClass()
     {
-        if (is_null($this->patchClass) || !isset($this->patchClass)) {
-            $this->setPatchClass();
+        switch ($this->magentoVersion) {
+            case "1.9.2.2":
+                return new MagentoPatch1922();
+            case "1.9.2.3":
+                return new MagentoPatch1923();
         }
 
-        return new $this->patchClass();
+        throw new \Exception("The patch for your Magento version is implemented yet");
     }
 }
