@@ -30,7 +30,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Mothership\\Magerun\\": "www/lib/Mothership/Magerun/"
+      "Mothership\\Magerun\\": "www/lib/Mothership/Magerun"
     }
   },
   "extra": {
