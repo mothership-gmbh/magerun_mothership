@@ -11,6 +11,7 @@ use Mothership\Magerun\Base\Command\PatchInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Mothership\Magerun\Base\Command\Reports\Lib\Patch\MagentoPatchFactory;
 
 use \Mothership\Magerun\Base\Command\AbstractMagentoCommand;
 
@@ -32,6 +33,7 @@ class ObserversTimesCommand extends AbstractMagentoCommand
     protected $dateStart;
     protected $file_report = [];
     protected $timestampfile;
+    protected $magentoRoot;
     /**
      * @var PatchInterface;
      */
@@ -65,7 +67,8 @@ class ObserversTimesCommand extends AbstractMagentoCommand
         parent::execute($input, $output);
         $this->handleSygnal();
         $this->output = $output;
-        $this->observerlog_dir = $this->magento_root . "/observerlogs";
+        $this->magentoRoot = $this->getApplication()->getMagentoRootFolder();
+        $this->observerlog_dir = $this->magentoRoot . "/observerlogs";
         if (!file_exists($this->observerlog_dir)) {
             mkdir($this->observerlog_dir, 0777);
         }
@@ -83,7 +86,7 @@ class ObserversTimesCommand extends AbstractMagentoCommand
 
             $factory = new MagentoPatchFactory(\Mage::getVersion());
             $this->patch = $factory->getMagentoPatchClass();
-            $this->patch->addPatch($this->getApplication()->getMagentoRootFolder());
+            $this->patch->addPatch($this->magentoRoot);
 
             $this->output->writeln("<info>Start reporting...</info>");
             $this->output->writeln("<warning>Press Ctrl+z or Ctrl+c to stop!</warning>");

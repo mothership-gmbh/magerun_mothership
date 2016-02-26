@@ -1,4 +1,4 @@
-$basefilename = Mage::getBaseDir()."/../observerlogs/observerstimes";
+$basefilename = __DIR__."/../observerlogs/observerstimes";
 $now = new \DateTime();
 $url = str_replace('/','_',$_SERVER['REQUEST_URI']);
 $filename = $basefilename."_".$now->format('YmdH').$url.".log.csv";

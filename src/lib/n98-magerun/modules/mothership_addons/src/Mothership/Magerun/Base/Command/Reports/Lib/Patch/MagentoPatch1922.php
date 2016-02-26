@@ -5,7 +5,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace Mothership\Magerun\Base\Command\Reports;
+namespace Mothership\Magerun\Base\Command\Reports\Lib\Patch;
 /**
  * Class MagetoPatch1922
  *
@@ -56,6 +56,6 @@ class MagentoPatch1922 extends AbstractMagentoPatch
      */
     protected function setPathDirectory()
     {
-        return __DIR__ . '/patch/Magento/1_9_2_2';
+        return __DIR__ . '/patches/Magento/1_9_2_2';
     }
 }
