@@ -5,20 +5,28 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace Mothership\Magerun\Base\Command\Reports\Lib\Patch;
-
+namespace Mothership_Addons\Patch;
 /**
  * Class AbstractMagentoPatchFactory
  *
  * @category   Mothership
- * @package    Mothership_Reports
+ * @package    Mothership_Magerun_Addons
  * @author     Maurizio Brioschi <brioschi@mothership.de>
  * @copyright  2016 Mothership Gmbh
  * @link       http://www.mothership.de/
  */
-class AbstractMagentoPatchFactory
+abstract class AbstractMagentoPatchFactory
 {
+    /**
+     * @var string (ex. 1.9.2.3)
+     */
     protected $magentoVersion;
+    /**
+     * the patch to apply
+     *
+     * @var PatchInterface
+     */
+    protected $patch;
 
     /**
      * AbstractMagentoPatchFactory constructor.
@@ -33,19 +41,26 @@ class AbstractMagentoPatchFactory
     /**
      * Get the class for the patch, in base of the Magento version
      *
-     * @return Mothership\Magerun\Base\Command\Reports\PatchInterface
+     * @return void
+     *
+     * @throws \Exception if the patch is not set
+     */
+    abstract protected function setMagentoPatchClass();
+
+    /**
+     *
+     * @return mixed
      *
      * @throws \Exception
      */
-    public function getMagentoPatchClass()
+    public function getPatch()
     {
-        switch ($this->magentoVersion) {
-            case "1.9.2.2":
-                return new MagentoPatch1922();
-            case "1.9.2.3":
-                return new MagentoPatch1923();
+        try {
+            $this->setMagentoPatchClass();
+            return $this->patch;
+        } catch (\Exception $e) {
+            throw $e;
         }
 
-        throw new \Exception("The patch for your Magento version is implemented yet");
     }
 }

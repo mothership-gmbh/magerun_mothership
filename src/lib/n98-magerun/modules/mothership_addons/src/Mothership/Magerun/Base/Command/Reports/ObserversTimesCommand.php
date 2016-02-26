@@ -7,11 +7,9 @@
  */
 namespace Mothership\Magerun\Base\Command\Reports;
 
-use Mothership\Magerun\Base\Command\PatchInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Mothership\Magerun\Base\Command\Reports\Lib\Patch\MagentoPatchFactory;
 
 use \Mothership\Magerun\Base\Command\AbstractMagentoCommand;
 
@@ -35,9 +33,10 @@ class ObserversTimesCommand extends AbstractMagentoCommand
     protected $timestampfile;
     protected $magentoRoot;
     /**
-     * @var PatchInterface;
+     * Output to command line
+     * @var OutputInterface
      */
-    protected $patch;
+    protected $output;
 
     protected $description = 'Create a csv report with the execution workflow and observers execution times';
 
@@ -65,34 +64,40 @@ class ObserversTimesCommand extends AbstractMagentoCommand
     {
 
         parent::execute($input, $output);
-        $this->handleSygnal();
         $this->output = $output;
         $this->magentoRoot = $this->getApplication()->getMagentoRootFolder();
         $this->observerlog_dir = $this->magentoRoot . "/observerlogs";
         if (!file_exists($this->observerlog_dir)) {
             mkdir($this->observerlog_dir, 0777);
         }
-        $this->dateStart = new \DateTime();
+
         $bootleneck = false;
-        $info = array();
-        if ($input->getOption('bootleneck') == true) {
-            $bootleneck = true;
-            $this->output->writeln("<info>I will report bootlenecks</info>");
-        }
 
         $this->detectMagento($output);
         if ($this->initMagento()) {
-            $this->output->writeln("<info>Applying the patch...</info>");
-
+            //add the patch
             $factory = new MagentoPatchFactory(\Mage::getVersion());
-            $this->patch = $factory->getMagentoPatchClass();
-            $this->patch->addPatch($this->magentoRoot);
+            $patch = $factory->getMagentoPatchClass();
+            $this->output->writeln("<info>Applying the patch...</info>");
+            $patch->addPatch($this->magentoRoot);
+
+            if ($input->getOption('bootleneck') == true) {
+                $bootleneck = true;
+                $this->output->writeln("<info>I will report bootlenecks</info>");
+                /**
+                 * If i check for bootlenecks i will execute an infinite loop until a Term signal is call in the command line
+                 * In the loop i check if there are new file in the log directory and i will analyze them for bootlenecks
+                 */
+                $handle = new HandlePatch($this->output, $patch);
+            }
 
             $this->output->writeln("<info>Start reporting...</info>");
             $this->output->writeln("<warning>Press Ctrl+z or Ctrl+c to stop!</warning>");
 
             $this->file_report = scandir($this->observerlog_dir);
             $this->timestampfile = filemtime($this->observerlog_dir . '/timestamp');
+
+            $this->dateStart = new \DateTime();
             if ($bootleneck) {
                 while (true) {
                     $this->output->write("<info>.</info>");
@@ -100,11 +105,10 @@ class ObserversTimesCommand extends AbstractMagentoCommand
                     if (count($newfiles) > count($this->file_report)) {
                         $this->checkBootleneck($newfiles);
                     }
-
-                    pcntl_sigtimedwait(array(SIGTERM), $info, 1);
+                    $handle->waitForTermSignal();
                 }
             } else {
-                pcntl_sigtimedwait(array(SIGTERM), $info, 1);
+                $handle->waitForTermSignal();
             }
 
         }
@@ -113,19 +117,8 @@ class ObserversTimesCommand extends AbstractMagentoCommand
     }
 
     /**
-     * Function call on SIGNTERM to stop reporting
-     */
-    public function stopObserver()
-    {
-        $this->output->writeln("<info>Removing patch</info>");
-        $this->patch->removePatch();
-        $this->output->writeln("<info>Stop reporting</info>");
-        exit;
-    }
-
-
-    /**
      * Analise bottleneck from all the files in the array and print the output on the terminal line
+     *
      * @param array $newfiles
      */
     protected function checkBootleneck(array $newfiles)
@@ -159,7 +152,9 @@ class ObserversTimesCommand extends AbstractMagentoCommand
 
     /**
      * Try to get the contents of a report files, if it's lock from Magento, sleep for 1 sec.
+     *
      * @param $filename
+     *
      * @return string
      */
     protected function getFileContent($filename)
@@ -177,24 +172,6 @@ class ObserversTimesCommand extends AbstractMagentoCommand
             sleep(1);
             $this->getFileContent($filename);
         }
-    }
-
-    /**
-     * Handle the signal from the terminal
-     */
-    private function handleSygnal()
-    {
-        declare(ticks = 1);
-
-        pcntl_signal(SIGINT, function ($signal) {
-            $this->output->writeln("<info>Handle signal: " . $signal . "</info>");
-            $this->stopObserver();
-        });
-
-        pcntl_signal(SIGTSTP, function ($signal) {
-            $this->output->writeln("<info>Handle signal: " . $signal . "</info>");
-            $this->stopObserver();
-        });
     }
 
 

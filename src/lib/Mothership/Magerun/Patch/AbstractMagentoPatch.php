@@ -5,12 +5,13 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace Mothership\Magerun\Base\Command\Reports\Lib\Patch;
+namespace Mothership_Addons\Patch;
+
 /**
  * Class AbstractMagentoPatch
  *
  * @category   Mothership
- * @package    Mothership_Reports
+ * @package    Mothership_Magerun_Addons
  * @author     Maurizio Brioschi <brioschi@mothership.de>
  * @copyright  2016 Mothership Gmbh
  * @link       http://www.mothership.de/
@@ -68,11 +69,11 @@ abstract class AbstractMagentoPatch implements PatchInterface
     {
         $this->magento_root = $magentoRoot;
 
-        if(!file_exists($this->magento_root . "/app/Mage.php")){
+        if (!file_exists($this->magento_root . "/app/Mage.php")) {
             throw new \Exception($this->magento_root . "/app/Mage.php doesn't exist");
         }
 
-        if(!file_exists($this->magento_root . "/app/code/core/Mage/Core/Model/App.php")){
+        if (!file_exists($this->magento_root . "/app/code/core/Mage/Core/Model/App.php")) {
             throw new \Exception($this->magento_root . "/app/code/core/Mage/Core/Model/App.php doesn't exist");
         }
 

@@ -5,7 +5,9 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace Mothership\Magerun\Base\Command\Reports\Lib\Patch;
+namespace Mothership\Magerun\Base\Command\Reports;
+
+use Mothership\Magerun\Patch\AbstractMagentoPatch;
 /**
  * Class MagetoPatch1922
  *
