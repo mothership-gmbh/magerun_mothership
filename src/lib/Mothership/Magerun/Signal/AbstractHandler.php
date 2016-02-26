@@ -48,7 +48,7 @@ abstract class AbstractHandler implements HandleInterface
      *
      * @return void
      */
-    protected function run()
+    public function run()
     {
         $this->configureSignals();
     }

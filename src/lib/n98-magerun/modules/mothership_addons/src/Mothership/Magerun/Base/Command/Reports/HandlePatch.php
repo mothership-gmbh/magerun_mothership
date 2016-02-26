@@ -56,7 +56,7 @@ class HandlePatch extends AbstractHandler
      *
      * @return void
      */
-    function stop()
+    public function stop()
     {
         $this->output->writeln("<info>Removing patch</info>");
         $this->patch->removePatch();

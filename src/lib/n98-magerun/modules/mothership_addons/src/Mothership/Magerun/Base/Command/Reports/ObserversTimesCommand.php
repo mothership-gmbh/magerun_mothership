@@ -77,7 +77,7 @@ class ObserversTimesCommand extends AbstractMagentoCommand
         if ($this->initMagento()) {
             //add the patch
             $factory = new MagentoPatchFactory(\Mage::getVersion());
-            $patch = $factory->getMagentoPatchClass();
+            $patch = $factory->getPatch();
             $this->output->writeln("<info>Applying the patch...</info>");
             $patch->addPatch($this->magentoRoot);
 

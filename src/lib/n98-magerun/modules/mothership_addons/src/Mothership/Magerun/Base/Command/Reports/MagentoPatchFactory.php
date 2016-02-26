@@ -7,7 +7,8 @@
  */
 namespace Mothership\Magerun\Base\Command\Reports;
 
-use Mothership_Addons\Patch\AbstractMagentoPatchFactory;
+use Mothership\Magerun\Patch\AbstractMagentoPatchFactory;
+
 /**
  * Class AbstractMagentoPatchFactory
  *
@@ -29,16 +30,17 @@ class MagentoPatchFactory extends AbstractMagentoPatchFactory
      */
     protected function setMagentoPatchClass()
     {
-        {
-            switch ($this->magentoVersion) {
-                case "1.9.2.2":
-                    return new MagentoPatch1922();
-                case "1.9.2.3":
-                    return new MagentoPatch1923();
-            }
-
-            throw new \Exception("The patch for your Magento version is implemented yet");
+        switch ($this->magentoVersion) {
+            case "1.9.2.2":
+                $this->patch = new MagentoPatch1922();
+                break;
+            case "1.9.2.3":
+                $this->patch = new MagentoPatch1923();
+                break;
+            default:
+                throw new \Exception("The patch for your Magento version is implemented yet");
         }
+
     }
 }
 
