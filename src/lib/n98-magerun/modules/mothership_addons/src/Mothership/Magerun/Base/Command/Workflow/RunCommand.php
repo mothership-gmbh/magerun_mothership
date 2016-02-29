@@ -1,56 +1,32 @@
 <?php
 /**
- * Magento
+ * This file is part of the Mothership GmbH code.
  *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to license@magentocommerce.com so we can send you a copy immediately.
- *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade Magento to newer
- * versions in the future. If you wish to customize Magento for your
- * needs please refer to http://www.magentocommerce.com for more information.
- *
- * PHP Version 5.4
- *
- * @category  Mothership
- * @package   Mothership_Addons
- * @author    Don Bosco van Hoi <vanhoi@mothership.de>
- * @copyright 2016 Mothership GmbH
- * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @link      http://www.mothership.de/
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
-namespace Mothership_Addons\Workflow;
+namespace Mothership\Magerun\Base\Command\Workflow;
 
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\Question;
+use \Symfony\Component\Console\Input\InputInterface;
+use \Symfony\Component\Console\Output\OutputInterface;
+use \Symfony\Component\Console\Input\InputOption;
+use \Symfony\Component\Console\Input\InputArgument;
+use \Symfony\Component\Console\Question\ChoiceQuestion;
+use \Symfony\Component\Console\Question\Question;
+use \Symfony\Component\Yaml\Yaml;
+
+use \Mothership\Magerun\Base\Command\AbstractMagentoCommand;
 
 /**
- * Class RunCommand
+ * Class RunCommand.
  *
- * @category  Mothership
- * @package   Mothership_Addons
  * @author    Don Bosco van Hoi <vanhoi@mothership.de>
  * @copyright 2016 Mothership GmbH
+ *
  * @link      http://www.mothership.de/
- *
- *            Example
- *
- *            magerun mothership:workflow:run --config=IntexDataImport.yaml --help
- *            magerun mothership:workflow:run --config=IntexDataImport.yaml --interactive
- *
  */
-class RunCommand extends \N98\Magento\Command\AbstractMagentoCommand
+class RunCommand extends AbstractMagentoCommand
 {
     /**
      * The workflow configuration files is an array which has been
@@ -61,14 +37,22 @@ class RunCommand extends \N98\Magento\Command\AbstractMagentoCommand
     protected $workflowConfiguration;
 
     /**
+     * Hold additional configuration from the workflow files.
+     *
+     * @var mixed
+     */
+    protected $parsedYaml = [];
+
+    protected $description = 'Run a workflow';
+
+    /**
      * Command config
      *
      * @return void
      */
     protected function configure()
     {
-         $this->setName('mothership:workflow:run')
-              ->setDescription('Run a workflow');
+         parent::configure();
 
         if (isset($GLOBALS['argv'][2])) {
 
@@ -81,7 +65,7 @@ class RunCommand extends \N98\Magento\Command\AbstractMagentoCommand
                 'queue',
                 null,
                 1,
-                'Put the workflow into a queue instead of running it directly'
+                'Process the workflow in php-resque. <comment>Enable the queue in the Magento backend!</comment>'
             );
 
             // add the config
@@ -97,9 +81,9 @@ class RunCommand extends \N98\Magento\Command\AbstractMagentoCommand
                 $workflowConfigurationFile = getcwd() . '/app/etc/mothership/workflows/' . $explodedConfig[1];
 
                 if (file_exists($workflowConfigurationFile)) {
-                    $workflowConfiguration = \Symfony\Component\Yaml\Yaml::parse(file_get_contents($workflowConfigurationFile));
+                    $this->parsedYaml = Yaml::parse(file_get_contents($workflowConfigurationFile));
 
-                    if (array_key_exists('options', $workflowConfiguration)) {
+                    if (array_key_exists('options', $this->parsedYaml)) {
 
                         // add the config
                         $this->addOption(
@@ -109,9 +93,9 @@ class RunCommand extends \N98\Magento\Command\AbstractMagentoCommand
                             'enables the interactive mode'
                         );
 
-                        $this->workflowConfiguration = $workflowConfiguration['options'];
+                        $this->workflowConfiguration = $this->parsedYaml['options'];
 
-                        foreach ($workflowConfiguration['options'] as $_option => $_optionConfiguration) {
+                        foreach ($this->parsedYaml['options'] as $_option => $_optionConfiguration) {
                             $this->addOption(
                                 $_option,
                                 array_key_exists('short', $_optionConfiguration) ? $_optionConfiguration['short'] : null,
@@ -201,39 +185,31 @@ HELP;
      *
      * @return int|void
      */
-    protected function execute(
-        \Symfony\Component\Console\Input\InputInterface $input,
-        \Symfony\Component\Console\Output\OutputInterface $output
-    ) {
-        $this->detectMagento($output);
-        if ($this->initMagento()) {
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        parent::execute($input, $output);
 
+        $input_path = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/workflows';
+        $filename   = $this->detectConfiguration($input, $output, $input_path);
+
+        if ($input->hasOption('queue') && $input->getOption('queue')) {
             /**
-             * Crucial as this method depends on the composer vendor library or
-             * psr-0/4 support in general
+             * Add the job for the incremental update
              */
-            \Mage::dispatchEvent('add_spl_autoloader');
+            $args = array_merge([
+                'workflow_path' => $this->getApplication()->getMagentoRootFolder() . '/app/etc/workflows/' . $input->getOption('config'),
+                'workflow'      => $input->getOption('config'),
+            ], $this->getArguments($input, $output));
 
-            $input_path = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/workflows';
-            $filename   = $this->_detectConfiguration($input, $output, $input_path);
+            $this->printCommand($args, $output);
 
-            if ($input->hasOption('queue') && $input->getOption('queue')) {
-                /**
-                 * Add the job for the incremental update
-                 */
-                $args = array_merge([
-                    'workflow_path' => $this->getApplication()->getMagentoRootFolder() . '/app/etc/workflows/' . $input->getOption('config'),
-                    'workflow'      => $input->getOption('config'),
-                ], $this->getArguments($input, $output));
-
-                $this->printCommand($args, $output);
-                \Resque::enqueue(\Mage::getStoreConfig('mothership_intex/queue/name'), '\Mothership\Magerun\Queue\Jobs\General', $args, true);
-            } else {
-                $stateMachine = new \Mothership\StateMachine\StateMachine($input_path . '/' . $filename);
-                $stateMachine->run($this->getArguments($input, $output));
-            }
-
-        };
+            // TODO: Check if queue is enabled
+            \Resque::setBackend(\Mage::getStoreConfig('mothership_intex/queue/host'));
+            \Resque::enqueue(\Mage::getStoreConfig('mothership_intex/queue/name'), '\Mothership\Magerun\Queue\Jobs\General', $args, true);
+        } else {
+            $stateMachine = new \Mothership\StateMachine\StateMachine($input_path . '/' . $filename);
+            $stateMachine->run($this->getArguments($input, $output));
+        }
     }
 
     /**
@@ -272,7 +248,8 @@ HELP;
         return array_merge($input->getOptions(), [
             'input'    => $input,
             'output'   => $output,
-            'root-dir' => $this->getApplication()->getMagentoRootFolder()
+            'root-dir' => $this->getApplication()->getMagentoRootFolder(),
+            'yaml'     => $this->parsedYaml
         ]) ;
     }
 
@@ -283,11 +260,7 @@ HELP;
      *
      * @return string
      */
-    protected function _detectConfiguration(
-        \Symfony\Component\Console\Input\InputInterface $input,
-        \Symfony\Component\Console\Output\OutputInterface $output,
-        $path
-    ) {
+    protected function detectConfiguration(InputInterface $input, OutputInterface $output, $path) {
         /**
          * If the user sets the option environment variable, then try to find it.
          */

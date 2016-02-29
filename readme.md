@@ -1,15 +1,31 @@
-Mothership Magerun Addons
+#Mothership Magerun Addons 
+
+![](https://travis-ci.org/mothership-gmbh/magerun_mothership.svg?branch=develop)
 =========================
-This repository contains Mothership specific addons and is a collection of useful components. 
+This repository contains a list of extensions, which might be useful for your development workflow.
 
 
-Installation
-============
+| Command 	| Description 	| Requirements 	|
+|----------------------------------------	|---------------------------------------------------------	|------------------------------------------------------------	|
+| [mothership:base:environment:dump](#mothership_base_environment_dump) 	|  	|  	|
+| [mothership:base:environment:import](#mothership_base_environment_import) 	|  	|  	|
+| mothership:base:feed:export 	|  	| mothership/feed_export 	|
+| mothership:base:fixtures:product 	| Creates a yaml fixture file for ecomDev PHPunit test 	|  	|
+| mothership:base:images:clean 	| Remove unused images from the catalog/product directory 	|  	|
+| mothership:base:images:dummy 	| For each missing image, create a dummy file 	| Create a dummy file 	|
+| mothership:base:images:missing 	| Identify missing images 	|  	|
+| mothership:base:images:resize 	| Resize images 	|  	|
+| mothership:base:reports:observerstimes 	|  	|  	|
+| mothership:base:workflow:list 	|  	|  mothership/state_machine	|
+| [mothership:base:workflow:render](#mothership_base_workflow_render) 	|  	|  mothership/state_machine, graphviz	|
+| [mothership:base:workflow:run](#mothership_base_workflow_run) 	|  Runs a state machine defined by a workflow	| mothership/state_machine 	|
 
-There are currently three different ways to include the magerun-components. I will describe two methods. Please check the offical [documentation](http://magerun.net/introducting-the-new-n98-magerun-module-system/).
+# Installation
 
-Method 1 - the easiest one
---------------------------
+There are currently three different ways to include the magerun-components. I will describe every method. Please check the offical [documentation](http://magerun.net/introducting-the-new-n98-magerun-module-system/) for further questions. The preferred method imho should be the composer way.
+
+## Method 1 - the easiest one
+
 This method needs you to have a home folder where all the custom modules will be located.
 
 * Execute the following snippet
@@ -25,8 +41,7 @@ cd ~/.n98-magerun/modules/
 git clone https://github.com/mothership-gmbh/magerun_mothership.git
 ```
 
-Method 2 - still easy, but more environment specific
-----------------------------------------------------
+## Method 2 - still easy, but more environment specific
 While there is one way to centralize all your modules i prefer to have environment specific modules. 
 
 * To achieve this, you just need to create a folder within your Magento project folder.
@@ -43,73 +58,32 @@ cd MAGENTO_ROOT/lib/n98-magerun/modules
 git clone https://github.com/mothership-gmbh/magerun_mothership.git
 ```
 
-Method 3 - composer.json
----------------------------------------
-just add this require to your *composer.json*
+## Method 3 - composer.json
+just add this require to your *composer.json*. Please check the latest tagged version by yourself. 
 
 ```
-"require": {
-        "mothership/mothership_magerun":"dev-master"
-        }
+"require": 
+{
+	"mothership/mothership_magerun":"<latest_tagged_version>"
+}
 ```
 
 
-Test it
-=======
-To test, if it works, just run ```magerun``` from your Magento-Project folder. You should see:
+# Commands
+
+## <a name="mothership_base_environment_dump"></a>mothership:environment:dump
+
+Dump all settings from the table ```core_config_data``` matching a given regular expression. Depends on a configuration file.
 
 ```
-mothership:env:import
-mothership:env:dump
+mothership:env:dump --
 ```
 
-Commands
-========
+[read more ...](./doc/base_environment_dump.md)
 
-mothership:env:dump
--------------------
-Dump all configuration-settings from the core_config Table as PHP array. You need to have one file named config.php. Just copy the file
 
-```
-cd PATH/src/Mothership/Environment/resource
-cp config.example.php config.php
-```
+##  <a name="mothership_base_environment_import"></a>mothership:environment:import
 
-Now edit the config.php and config your settings. You might exclude one or several configuration settings with a regex argument. This might be useful if you want to
-build a new template for your import.
-
-Example:
-
-```
-// config.php
-
-return array(
-
-    'dump' => array(
-        /**
-         * Excluded paths from the core_config_data table.
-         * You can use regex to exclude the paths as the script will use preg_match
-         */
-        'excluded_paths' => array(
-            '/^carriers.*/',
-            '/^google.*/',
-            '/^sales.*/',
-            '/^sales_pdf.*/',
-            '/^sales_email.*/',
-            '/^catalog.*/',
-            '/^newsletter.*/',
-            '/^payment.*/',
-        )
-    ),
-
-    'import' => array(
-
-    )
-);
-```
-
-mothership:env:import
----------------------
 Import the configuration settings by overwriting the existing configurations. There is one example file ```settings.example.php```.
 Just copy the file as ```settings.php``` and customize the settings for your needs.
 
@@ -118,9 +92,9 @@ Just copy the file as ```settings.php``` and customize the settings for your nee
  You need to have some files in the directory ```Mothership\Environment\resource```. They should be named like ```environment_anyname```.
  If there is more then one file, name it like your environments. Please define one file as a fallback.
  
+[read more ...](./doc/base_environment_import.md)
  
-mothership:images:create-dummy
-------------------------------
+## mothership:images:create-dummy
 
 This command will create an image file for each entry in the table ```catalog_product_entity_media_gallery```. Just ensure, that you have one file called ```dummy.jpg``` in your ```media``` directory. This can be useful if you have to deal with large product data but do not want to download a gigazillion large directory. 
 
@@ -128,45 +102,59 @@ For more fun, use the official Mothership Image.
 
 ![Logo](https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xap1/v/t1.0-1/p160x160/1461677_413147242145236_1945192833_n.png?oh=ef95d2bc628a458430a24a3c06dd66f0&oe=56890054&__gda__=1456143606_da6782209cad961eb54f9f020c624785)
 
-mothership:images:resize
-------------------------
+## mothership:images:resize
 
 Handy command, to minify the base-images. This will create a new directory named after the ```--dir``` parameter and create a smaller version of all existing images. Please be aware that in case you have a new image file with the same name, this command will not recognize that. In this case remove the existing file from the resized image directory and rerun the command
 
 ```magerun typehype:images:resize --dir=thumbnails --size=100```
 
-mothership:reports:observerstimes
-------------------------
+## mothership:reports:observerstimes
 This is a *magerun* command to create a *csv* reports to find all the events and relative observers called for each 
 Magento page called in the browser during navigation.
+
+[More doc](./doc/base_reports_readme.md)
+
 
 ```
 magerun mothership:reports:observerstimes
 ```
 
-# mothership:workflow:run
+## <a name="mothership_base_workflow_render"></a>mothership:workflow:render
 
-This is a magerun command to run a workflow. It depends on the [Mothership State Machine](https://github.com/mothership-gmbh/state_machine) and is basically a comfortable wrapper for the native method.
-See more details in this file.
+Super fancy graph generator! Instead of running our state machines, you can also render them for easier debugging. 
+
+The graph creation depends on [graphviz](www.graphviz.org/), so ensure that you have installed it first,
+so that you can run the ```dot``` command. Use ```apt-get install graphviz``` in debian environments.
+
 
 ```
-magerun mothership:workflow:run
+magerun mothership:workflow:render --config=Demo.yaml
 ```
 
-## Recommended directory structure
+The created graph will look like this one. Check the [source file](./src/app/etc/mothership/workflows/Demo.yaml)
+
+![Logo](./src/app/etc/mothership/workflows/Demo.yaml.png)
+
+And yes, you can run this workflow exactly like displayed in the graph. Check the next command.
+
+
+## <a name="mothership_base_workflow_run"></a>mothership:workflow:run
+
+Run a workflow from the directory ```<root>/app/etc/mothership/workflows```. This feature is very powerful and is being used in a lot of scenarios with a lot of
+complexity. It basically depends on [Mothership State Machine](https://github.com/mothership-gmbh/state_machine) and is a helper to run a finite state machine in a Magento environment.
 
 ```
-# directory path
+magerun mothership:workflow:run --config=yourworkflow.yaml
+magerun mothership:workflow:run --config=yourworkflow.yaml --help
+magerun mothership:workflow:run --config=yourworkflow.yaml --interactive
+magerun mothership:workflow:run --config=yourworkflow.yaml --queue
 ```
 
-## modman symlinks
+In additition to the plain PHP state machine implementation, this command has the following features:
 
-Please directly link s
+* Parses a new node in the workflow definition file.
+* Interactive mode: Each option can be set with a dialog.
+* Queue: Use the queue php-resque to run workflows in the background.
 
-```
-sdf
-```
+[More doc](./doc/base_workflow_run.md)
 
-
-
-[More doc](https://github.com/mothership-gmbh/magerun_mothership/tree/master/src/lib/n98-magerun/modules/mothership_addons/src/Mothership_Addons/Reports)

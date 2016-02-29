@@ -2,18 +2,25 @@
   "name": "mothership/mothership_magerun",
   "license": "GPL-3.0",
   "type": "magento-module",
-  "description": "Mothership Admin Panel for Magento",
+  "description": "Mothership Magerun Extensions for Magento",
   "homepage": "https://www.mothership.de",
   "require": {
-    "php": ">=5.3",
+    "php": ">=5.4",
     "magento-hackathon/magento-composer-installer": "*",
     "symfony/yaml": "2.7",
-    "mothership/state_machine": ">=v1.0 <2.0"
+    "mothership/state_machine": ">=v1.0 <2.0",
+    "firegento/psr0autoloader": "dev-master"
   },
   "require-dev": {
-    "phpunit/phpunit": "5.1",
+    "phpunit/phpunit": "~4.8",
     "escapestudios/symfony2-coding-standard": "~2.0"
   },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://packages.firegento.com"
+    }
+  ],
   "authors": [
     {
       "name": "Don Bosco van Hoi",
@@ -23,7 +30,10 @@
   ],
   "autoload": {
     "psr-4": {
-      "Mothership\\Magerun\\":  "www/lib/Mothership/Magerun"
+      "Mothership\\Magerun\\": "www/lib/Mothership/Magerun"
     }
+  },
+  "extra": {
+    "magento-root-dir": "root"
   }
 }
