@@ -73,7 +73,7 @@ if [ ! -f htdocs/app/etc/local.xml ] ; then
       --installSampleData=yes \
       --useDefaultConfigParams=yes \
       --magentoVersionByName="${MAGENTO_VERSION}" \
-      --installationFolder="${SOURCE_DIR}/htdocs" \
+      --installationFolder="${BUILDENV}/htdocs" \
       --baseUrl="http://magento.local/" || { echo "Installing Magento failed"; exit 1; }
 fi
 
@@ -95,4 +95,5 @@ export N98_MAGERUN_TEST_MAGENTO_ROOT=${BUILDENV}/htdocs
 
 
 cd ${BUILDENV}/htdocs
+ls -lisah ${BUILDENV}/htdocs
 phpunit --debug --verbose
