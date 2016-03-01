@@ -136,7 +136,7 @@ HELP;
      * @param \Symfony\Component\Console\Input\InputInterface   $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      */
-    protected function interact($input, $output)
+    protected function interact(InputInterface $input, OutputInterface $output)
     {
         if ($input->hasOption('interactive') && $input->getOption('interactive')) {
 
