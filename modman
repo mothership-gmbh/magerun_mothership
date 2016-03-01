@@ -8,3 +8,6 @@ src/media/feeds/readme.md                                       media/feeds/read
 src/lib/Mothership/Magerun                                      lib/Mothership/Magerun
 
 src/shell/queue.php                                             shell/queue.php
+
+tests                                                           tests
+phpunit.xml.dist                                                phpunit.xml.dist
