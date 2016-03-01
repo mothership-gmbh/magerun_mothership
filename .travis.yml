@@ -13,11 +13,11 @@ before_install:
 allow_failures:
   - php: 5.4
   - php: hhvm
-  - env: MAGENTO_VERSION="magento-mirror-1.9.2.2" INSTALL_SAMPLE_DATA=no
-  - env: MAGENTO_VERSION="magento-mirror-1.9.2.3" INSTALL_SAMPLE_DATA=no
+  - env: MAGENTO_VERSION="magento-mirror-1.8.1.0" INSTALL_SAMPLE_DATA=yes
+  - env: MAGENTO_VERSION="magento-mirror-1.9.2.3" INSTALL_SAMPLE_DATA=yes
 
 env:
-  - MAGENTO_VERSION="magento-mirror-1.9.2.2" INSTALL_SAMPLE_DATA=no
+  - MAGENTO_VERSION="magento-mirror-1.8.1.0" INSTALL_SAMPLE_DATA=no
   - MAGENTO_VERSION="magento-mirror-1.9.2.3" INSTALL_SAMPLE_DATA=no
 
 script: _deploy/travis.sh
