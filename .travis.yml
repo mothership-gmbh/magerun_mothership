@@ -1,5 +1,4 @@
 language: php
-sudo: true
 
 php:
   - 5.4
@@ -12,15 +11,5 @@ env:
     - MAGENTO_VERSION="magento-mirror-1.9.2.2" INSTALL_SAMPLE_DATA=no
     - MAGENTO_VERSION="magento-mirror-1.9.2.3" INSTALL_SAMPLE_DATA=no
 
-before_script:
-  - composer install
-  #install modman
-  #- sudo wget http://module-manager.googlecode.com/files/modman-1.1.1
-  #- sudo cp modman-1.1.1 /usr/local/bin/modman
-  #- sudo chmod +x /usr/local/bin/modman #needs to be executable
-  #- cd "${MAGENTO_VERSION}"
-  #- modman init
-  #- modman deploy-all
-
-#script:
-#  - phpunit --coverage-text
+script:
+  - curl -sSL https://raw.githubusercontent.com/AOEpeople/MageTestStand/master/setup.sh | bash
