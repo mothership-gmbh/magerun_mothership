@@ -15,7 +15,8 @@
     "phpunit/phpunit": "~4.8",
     "escapestudios/symfony2-coding-standard": "~2.0",
     "n98/magerun": "dev-master",
-    "composer/composer": "1.0.*@dev"
+    "composer/composer": "1.0.*@dev",
+    "aoepeople/composer-installers": "*"
   },
   "repositories": [
     {
