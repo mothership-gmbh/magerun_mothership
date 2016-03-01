@@ -18,4 +18,4 @@ env:
   - MAGENTO_VERSION="magento-mirror-1.9.2.3" INSTALL_SAMPLE_DATA=no
 
 script:
-  - curl -sSL https://github.com/mothership-gmbh/MageTestStand.git | bash
+  - curl -sSL https://raw.githubusercontent.com/mothership-gmbh/MageTestStand/master/setup.sh | bash
