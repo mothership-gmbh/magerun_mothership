@@ -96,4 +96,9 @@ export N98_MAGERUN_TEST_MAGENTO_ROOT=${BUILDENV}/htdocs
 
 cd ${BUILDENV}/htdocs
 ls -lisah ${BUILDENV}/htdocs
+
+ls -lisah ${BUILDENV}/vendor/
+cat ${BUILDENV}/vendor/autoload.php
+cat ${BUILDENV}/vendor/composer/autoload_psr4.php
+
 phpunit --debug --verbose
