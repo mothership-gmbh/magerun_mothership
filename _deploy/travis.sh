@@ -101,4 +101,4 @@ ls -lisah ${BUILDENV}/vendor/
 cat ${BUILDENV}/vendor/autoload.php
 cat ${BUILDENV}/vendor/composer/autoload_psr4.php
 
-phpunit --debug --verbose
+../vendor/phpunit/phpunit/phpunit --verbose --debug --config=phpunit.xml
