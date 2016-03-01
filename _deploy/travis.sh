@@ -6,8 +6,10 @@ set -x
 
 # create a temporary directory
 BUILDENV=`mktemp -d /tmp/mothership.XXXXXXXX`
+CWD=$(pwd)
 
-echo "Using build directory ${BUILDENV}"
+echo "BUILD = ${BUILDENV}"
+echo "CWD   = ${CWD}"
 
 
 mkdir -p ${BUILDENV}/.modman/mothership_magerun
@@ -15,7 +17,7 @@ mkdir -p ${BUILDENV}/.modman/mothership_magerun
 cp -rf . "${BUILDENV}/.modman/mothership_magerun"
 
 # Start building everything
-cp -f ${CWD}/composer.json ${BUILDENV}
+cp -f ${CWD}/composer.json    ${BUILDENV}
 cp -f ${CWD}/_deploy/.basedir ${BUILDENV}/.modman
 
 # Get absolute path to main directory
