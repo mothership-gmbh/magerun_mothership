@@ -57,11 +57,9 @@ if [ ! -f htdocs/app/etc/local.xml ] ; then
       --magentoVersionByName="${MAGENTO_VERSION}" \
       --installationFolder="${SOURCE_DIR}/htdocs" \
       --baseUrl="http://magento.local/" || { echo "Installing Magento failed"; exit 1; }
-
-     mysql -u${MAGENTO_DB_USER} -p${MAGENTO_DB_PASS} -h${MAGENTO_DB_HOST} -P${MAGENTO_DB_PORT} -e "DROP DATABASE IF EXISTS \`${MAGENTO_DB_NAME}\`; CREATE DATABASE \`${MAGENTO_DB_NAME}\`;"
 fi
 
-composer install
+composer self-update
 
 
 modman deploy-all --force
