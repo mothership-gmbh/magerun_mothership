@@ -35,6 +35,8 @@ cd ${SOURCE_DIR}
 # Download composer
 composer self-update
 bash < <(curl -s -L https://raw.github.com/colinmollenhour/modman/master/modman-installer)
+
+cd ${SOURCE_DIR}
 wget http://files.magerun.net/n98-magerun-latest.phar
 chmod +x ./n98-magerun-latest.phar
 
@@ -60,7 +62,7 @@ if [ ! -f htdocs/app/etc/local.xml ] ; then
       sed -i -e s/MAGENTO_DB_NAME/${MAGENTO_DB_NAME}/g .modman/Aoe_TestSetup/app/etc/local.xml.phpunit
     fi
 
-    n98-magerun-latest.phar install \
+    ./n98-magerun-latest.phar install \
       --dbHost="${MAGENTO_DB_HOST}" --dbUser="${MAGENTO_DB_USER}" --dbPass="${MAGENTO_DB_PASS}" --dbName="${MAGENTO_DB_NAME}" --dbPort="${MAGENTO_DB_PORT}" \
       --installSampleData=yes \
       --useDefaultConfigParams=yes \
@@ -76,12 +78,12 @@ composer.phar self-update
 
 modman deploy-all --force
 
-n98-magerun-latest.phar --root-dir=htdocs config:set dev/template/allow_symlink 1
-n98-magerun-latest.phar --root-dir=htdocs sys:setup:run
-n98-magerun-latest.phar --root-dir=htdocs cache:flush
+./n98-magerun-latest.phar --root-dir=htdocs config:set dev/template/allow_symlink 1
+./n98-magerun-latest.phar --root-dir=htdocs sys:setup:run
+./n98-magerun-latest.phar --root-dir=htdocs cache:flush
 
-n98-magerun-latest.phar cache:clean
-n98-magerun-latest.phar sys:module:list
+./n98-magerun-latest.phar cache:clean
+./n98-magerun-latest.phar sys:module:list
 export N98_MAGERUN_TEST_MAGENTO_ROOT=${BUILDENV}/htdocs
 
 
