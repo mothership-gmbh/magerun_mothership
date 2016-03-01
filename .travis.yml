@@ -17,5 +17,4 @@ env:
   - MAGENTO_VERSION="magento-mirror-1.9.2.2" INSTALL_SAMPLE_DATA=no
   - MAGENTO_VERSION="magento-mirror-1.9.2.3" INSTALL_SAMPLE_DATA=no
 
-script:
-  - ./_deploy/travis.sh | bash
+script: _deploy/travis.sh

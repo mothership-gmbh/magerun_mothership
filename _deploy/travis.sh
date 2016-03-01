@@ -33,9 +33,7 @@ echo
 cd ${SOURCE_DIR}
 
 # Download composer
-php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php
-php composer-setup.php
-php composer.phar self-update
+composer self-update
 bash < <(curl -s -L https://raw.github.com/colinmollenhour/modman/master/modman-installer)
 wget http://files.magerun.net/n98-magerun-latest.phar
 chmod +x ./n98-magerun-latest.phar
