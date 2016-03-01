@@ -6,9 +6,13 @@ php:
 #  - 5.6
 #  - 7.0
 
+## Update composer and run the appropriate composer command
+before_script:
+  - composer self-update -q
+  - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
+
 before_install:
   - chmod +x _deploy/travis.sh
-  - travis_retry composer self-update
 
 allow_failures:
   - php: 5.4
