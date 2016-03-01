@@ -83,7 +83,7 @@ composer install
 
 # run modman and first debug
 ls -lisah ${BUILDENV}
-modman deploy-all --force --copy
+modman deploy-all --force
 
 ./n98-magerun-latest.phar --root-dir=htdocs config:set dev/template/allow_symlink 1
 ./n98-magerun-latest.phar --root-dir=htdocs sys:setup:run

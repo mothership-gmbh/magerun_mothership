@@ -11,6 +11,7 @@ class EnvironmentsTest extends TestCase
 
     public function testExecute()
     {
+        $this->markTestSkipped('Not used at the moment');
         $application = $this->getApplication();
         $application->add(new DumpCommand());
         $command = $this->getApplication()->find('mothership:base:environment:dump');
