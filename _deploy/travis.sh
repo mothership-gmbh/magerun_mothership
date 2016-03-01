@@ -50,13 +50,13 @@ echo
 
 
 
-cd ${SOURCE_DIR}
+cd ${BUILDENV}
 
 # Download composer
 composer self-update
 bash < <(curl -s -L https://raw.github.com/colinmollenhour/modman/master/modman-installer)
 
-cd ${SOURCE_DIR}
+cd ${BUILDENV}
 wget http://files.magerun.net/n98-magerun-latest.phar
 chmod +x ./n98-magerun-latest.phar
 
@@ -82,7 +82,7 @@ composer self-update
 composer install
 
 # run modman and first debug
-ls -lisah ${SOURCE_DIR}
+ls -lisah ${BUILDENV}
 modman deploy-all --force
 
 ./n98-magerun-latest.phar --root-dir=htdocs config:set dev/template/allow_symlink 1
