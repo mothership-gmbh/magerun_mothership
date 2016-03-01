@@ -2,6 +2,22 @@
 set -e
 set -x
 
+# most of the script is based on the fantastic https://github.com/AOEpeople/MageTestStand project
+
+# create a temporary directory
+BUILDENV=`mktemp -d /tmp/mothership.XXXXXXXX`
+
+echo "Using build directory ${BUILDENV}"
+
+
+mkdir -p ${BUILDENV}/.modman/mothership_magerun
+
+cp -rf . "${BUILDENV}/.modman/mothership_magerun"
+
+# Start building everything
+cp -f ${CWD}/composer.json ${BUILDENV}
+cp -f ${CWD}/_deploy/.basedir ${BUILDENV}/.modman
+
 # Get absolute path to main directory
 ABSPATH=$(cd "${0%/*}" 2>/dev/null; echo "${PWD}/${0##*/}")
 SOURCE_DIR=`dirname "${ABSPATH}"`
@@ -59,9 +75,12 @@ if [ ! -f htdocs/app/etc/local.xml ] ; then
       --baseUrl="http://magento.local/" || { echo "Installing Magento failed"; exit 1; }
 fi
 
+# run composer update and install all requirements
 composer self-update
+composer install
 
-
+# run modman and first debug
+ls -lisah ${SOURCE_DIR}
 modman deploy-all --force
 
 ./n98-magerun-latest.phar --root-dir=htdocs config:set dev/template/allow_symlink 1
