@@ -1,14 +1,14 @@
 <config>
 
     <tabs>
-        <mothership translate="label" module="mothership_intex">
+        <mothership translate="label" module="mothership_addons">
             <label>Mothership</label>
             <sort_order>100</sort_order>
         </mothership>
     </tabs>
 
     <sections>
-        <mothership_magerun translate="label" module="mothership_intex">
+        <mothership_magerun translate="label" module="mothership_addons">
             <label>Mothership Magerun</label>
             <tab>mothership</tab>
             <sort_order>10</sort_order>
