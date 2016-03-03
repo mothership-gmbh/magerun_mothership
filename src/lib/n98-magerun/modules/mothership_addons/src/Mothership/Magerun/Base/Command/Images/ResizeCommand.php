@@ -61,7 +61,7 @@ class ResizeCommand extends AbstractCommand
                 $this->_resized_path = $input->getOption('env');
             }
 
-            $pdo   = $this->_getDatabaseConnection();
+            $pdo   = $this->getConnection();
             $query = "SELECT
                         cpemg.value_id AS mg_v,
                         cpemg.position,
