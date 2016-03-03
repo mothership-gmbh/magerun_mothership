@@ -98,4 +98,15 @@ abstract class AbstractMagentoCommand extends \N98\Magento\Command\Database\Abst
         // Add PSR-0/4 support
         \Mage::dispatchEvent('add_spl_autoloader');
     }
+
+    /**
+     * Get a PDO connection. Actually there is a magic method for this
+     *
+     * @return \PDO
+     */
+    protected function getConnection()
+    {
+        return $this->_connection;
+    }
+
 }
