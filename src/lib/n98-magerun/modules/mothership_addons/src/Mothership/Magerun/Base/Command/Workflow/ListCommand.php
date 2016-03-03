@@ -107,9 +107,8 @@ HELP;
         $output->writeln('You have just selected: ' . $environment_files[$environment]);
         $file_name = $environment_files[$environment];
 
-
         $output->writeln(
-            "Run it like: <comment>magerun mothership:workflow:run --config=" . $environment_files[$environment]
+            "Run it like: <comment>magerun mothership:base:workflow:run --config=" . $environment_files[$environment]
             . " --help</comment>"
         );
 

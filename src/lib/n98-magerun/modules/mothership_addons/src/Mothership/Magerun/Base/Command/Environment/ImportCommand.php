@@ -144,7 +144,7 @@ class ImportCommand extends AbstractMagentoCommand
      */
     protected function _getStoreConfig($scope, $scope_id, $path)
     {
-        $dbh = $this->_getDatabaseConnection();
+        $dbh = $this->getConnection();
         $sql = 'SELECT value
                   FROM core_config_data
                   WHERE scope = :scope AND scope_id = :scope_id AND path = :path';
@@ -172,7 +172,7 @@ class ImportCommand extends AbstractMagentoCommand
      */
     protected function _setStoreConfig($scope, $scope_id, $path, $value)
     {
-        $dbh = $this->_getDatabaseConnection();
+        $dbh = $this->getConnection();
         $sql = 'SELECT config_id, value
                   FROM core_config_data
                   WHERE scope = :scope AND scope_id = :scope_id AND path = :path';
@@ -188,7 +188,7 @@ class ImportCommand extends AbstractMagentoCommand
 
         if (isset($result['config_id'])) {
 
-            $dbh = $this->_getDatabaseConnection();
+            $dbh = $this->getConnection();
             $sql = 'UPDATE core_config_data
                         SET value = :value
                         WHERE scope = :scope AND scope_id = :scope_id AND path = :path';
@@ -203,7 +203,7 @@ class ImportCommand extends AbstractMagentoCommand
             );
 
         } else {
-            $dbh = $this->_getDatabaseConnection();
+            $dbh = $this->getConnection();
             $sql = 'INSERT INTO core_config_data(scope, scope_id, path, value)
                   VALUES (:scope, :scope_id, :path, :value)';
 
@@ -215,7 +215,6 @@ class ImportCommand extends AbstractMagentoCommand
                     ':value'    => $value
                 )
             );
-          //  $sth->exec();
         }
     }
 }
