@@ -1,34 +1,27 @@
 language: php
-sudo: true
 
 php:
-  - 5.3
   - 5.4
   - 5.5
-  - 5.6
+#  - 5.6
   - 7.0
 
-env:
-  matrix:
-    - MAGENTO_VERSION="magento-mirror-1.6.2.0" INSTALL_SAMPLE_DATA=yes
-    - MAGENTO_VERSION="magento-mirror-1.7.0.2" INSTALL_SAMPLE_DATA=yes
-    - MAGENTO_VERSION="magento-mirror-1.8.1.0" INSTALL_SAMPLE_DATA=yes
-    # Do not download sample data of 1.9 -> The file is too big
-    - MAGENTO_VERSION="magento-mirror-1.9.0.1" INSTALL_SAMPLE_DATA=no
-    - MAGENTO_VERSION="magento-mirror-1.9.1.1" INSTALL_SAMPLE_DATA=no
-    - MAGENTO_VERSION="magento-mirror-1.9.2.1" INSTALL_SAMPLE_DATA=no
-    - MAGENTO_VERSION="magento-mirror-1.9.2.2" INSTALL_SAMPLE_DATA=no
-    - MAGENTO_VERSION="magento-mirror-1.9.2.3" INSTALL_SAMPLE_DATA=no
-
+## Update composer and run the appropriate composer command
 before_script:
-  - composer install
-  #install modman
-  #- sudo wget http://module-manager.googlecode.com/files/modman-1.1.1
-  #- sudo cp modman-1.1.1 /usr/local/bin/modman
-  #- sudo chmod +x /usr/local/bin/modman #needs to be executable
-  #- cd "${MAGENTO_VERSION}"
-  #- modman init
-  #- modman deploy-all
+  - composer self-update -q
+  - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
 
-#script:
-#  - phpunit --coverage-text
+before_install:
+  - chmod +x _deploy/travis.sh
+
+allow_failures:
+  - php: 5.4
+  - php: hhvm
+  - env: MAGENTO_VERSION="magento-mirror-1.8.1.0" INSTALL_SAMPLE_DATA=yes
+  - env: MAGENTO_VERSION="magento-mirror-1.9.2.3" INSTALL_SAMPLE_DATA=yes
+
+env:
+  - MAGENTO_VERSION="magento-mirror-1.8.1.0" INSTALL_SAMPLE_DATA=no
+  - MAGENTO_VERSION="magento-mirror-1.9.2.3" INSTALL_SAMPLE_DATA=no
+
+script: _deploy/travis.sh

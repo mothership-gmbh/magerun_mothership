@@ -1,6 +1,14 @@
 #Mothership Magerun Addons 
 
-![](https://travis-ci.org/mothership-gmbh/magerun_mothership.svg?branch=develop)
+![](https://travis-ci.org/mothership-gmbh/magerun_mothership.svg)
+ 
+
+[![Dependency Status](https://www.versioneye.com/user/projects/56d70789d71695003e63118a/badge.svg?style=flat)](https://www.versioneye.com/user/projects/56d70789d71695003e63118a) 
+[![Latest Stable Version](https://poser.pugx.org/mothership/mothership_magerun/v/stable)](https://packagist.org/packages/mothership/mothership_magerun) 
+[![Total Downloads](https://poser.pugx.org/mothership/mothership_magerun/downloads)](https://packagist.org/packages/mothership/mothership_magerun) 
+[![Latest Unstable Version](https://poser.pugx.org/mothership/mothership_magerun/v/unstable)](https://packagist.org/packages/mothership/mothership_magerun) 
+[![License](https://poser.pugx.org/mothership/mothership_magerun/license)](https://packagist.org/packages/mothership/mothership_magerun)
+
 =========================
 This repository contains a list of extensions, which might be useful for your development workflow.
 
