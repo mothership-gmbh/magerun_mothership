@@ -207,7 +207,8 @@ HELP;
             \Resque::setBackend(\Mage::getStoreConfig('mothership_magerun/queue/host'));
             \Resque::enqueue(\Mage::getStoreConfig('mothership_magerun/queue/name'), '\Mothership\Magerun\Queue\Jobs\General', $args, true);
         } else {
-            $stateMachine = new \Mothership\StateMachine\StateMachine($input_path . '/' . $filename);
+            $configuration = Yaml::parse(file_get_contents($input_path . '/' . $filename));
+            $stateMachine = new \Mothership\StateMachine\StateMachine($configuration);
             $stateMachine->run($this->getArguments($input, $output));
         }
     }

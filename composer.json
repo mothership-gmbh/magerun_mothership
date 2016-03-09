@@ -8,7 +8,7 @@
     "php": ">=5.4",
     "magento-hackathon/magento-composer-installer": "*",
     "symfony/yaml": "~2.7",
-    "mothership/state_machine": "v1.1.*",
+    "mothership/state_machine": "v1.2.*",
     "firegento/psr0autoloader": "dev-master"
   },
   "require-dev": {
