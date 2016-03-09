@@ -38,7 +38,7 @@ class DummyCommand extends AbstractCommand
 
             $this->writeSection($output, 'Reading all files from the database.');
 
-            $pdo = $this->_getDatabaseConnection();
+            $pdo = $this->getConnection();
 
             $query = "SELECT * FROM catalog_product_entity_media_gallery";
             $sth = $pdo->prepare($query);

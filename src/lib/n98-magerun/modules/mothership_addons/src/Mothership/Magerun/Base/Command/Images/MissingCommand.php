@@ -36,7 +36,7 @@ class MissingCommand extends AbstractCommand
 
             $this->writeSection($output, 'Import the settings from the settings.php file');
 
-            $pdo = $this->_getDatabaseConnection();
+            $pdo = $this->getConnection();
 
             $query = "SELECT * FROM catalog_product_entity_media_gallery";
             $sth = $pdo->prepare($query);

@@ -75,7 +75,7 @@ class ExportCommand extends AbstractMagentoCommand
                 throw new \Exception('File ' . $input_path . '/' . $filename . ' does not exist');
             }
 
-            $input_interface = new \Mothership\Component\Feed\Input\InputMysqlData($this->_getDatabaseConnection());
+            $input_interface = new \Mothership\Component\Feed\Input\InputMysqlData($this->getConnection());
 
             $factory = new FeedFactory($input_path . '/' . $filename, $input_interface);
             $factory->processFeed(new OutputCsv($output_path . $filename . '.csv'));

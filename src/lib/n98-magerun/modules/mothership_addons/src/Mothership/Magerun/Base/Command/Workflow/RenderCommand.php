@@ -12,6 +12,7 @@ use \Symfony\Component\Console\Output\OutputInterface;
 use \Symfony\Component\Console\Input\InputOption;
 
 use \Mothership\Magerun\Base\Command\AbstractMagentoCommand;
+use \Symfony\Component\Yaml\Yaml;
 
 
 /**
@@ -64,7 +65,8 @@ class RenderCommand extends AbstractMagentoCommand
 
         // $input_interface = new \Mothership\Component\Feed\Input\InputMysqlData($this->_getDatabaseConnection());
 
-        $stateMachine = new \Mothership\StateMachine\StateMachine($input_path . '/' . $filename);
+        $configuration = Yaml::parse(file_get_contents($input_path . '/' . $filename));
+        $stateMachine = new \Mothership\StateMachine\StateMachine($configuration);
         $output->writeln('<comment>Create PNG in in: ' . $input_path . '/' . $filename . '.png </comment>');
         $stateMachine->renderGraph($input_path . '/' . $filename . '.png');
 
