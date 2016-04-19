@@ -77,7 +77,7 @@ class ExportCommand extends AbstractMagentoCommand
 
             $input_interface = new \Mothership\Component\Feed\Input\InputMysqlData($this->getConnection());
 
-            $factory = new FeedFactory($input_path . '/' . $filename, $input_interface);
+            $factory = new \Mothership\Magerun\Feed\FeedFactory($input_path . '/' . $filename, $input_interface);
             $factory->processFeed(new OutputCsv($output_path . $filename . '.csv'));
 
             $output->writeln('<comment>File saved to : ' . $output_path . $filename . '.csv' . '</comment>');
