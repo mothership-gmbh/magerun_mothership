@@ -57,6 +57,7 @@ class RunCommand extends AbstractMagentoCommand
         if (isset($GLOBALS['argv'][2])) {
 
             $explodedConfig = explode("=", $GLOBALS['argv'][2]);
+            $workflowName   = explode(".", $explodedConfig[1]);
 
             /**
              * Add the option to add this to a queue. Requires a queue configuration
@@ -73,7 +74,16 @@ class RunCommand extends AbstractMagentoCommand
                 'config',
                 'c',
                 2,
-                'configuration'
+                'The name of the configuration file. Usually a <comment>.yaml file</comment> in : <comment>' . getcwd() . '/app/etc/mothership/workflows/</comment>'
+            );
+
+            // add
+            $this->addOption(
+                'log-dir',
+                'l',
+                2,
+                'The log directory. Specify a relative path to ' . getcwd(),
+                getcwd() . '/var/log/workflows/' . $workflowName[0]
             );
 
             if (array_key_exists(1, $explodedConfig) && strpos($explodedConfig[1], 'yaml') !== false) {
@@ -90,7 +100,7 @@ class RunCommand extends AbstractMagentoCommand
                             'interactive',
                             'i',
                             InputOption::VALUE_NONE,
-                            'enables the interactive mode'
+                            'Triggers the interactive mode.'
                         );
 
                         $this->workflowConfiguration = $this->parsedYaml['options'];
@@ -118,7 +128,7 @@ Run a workflow file based on the configuration file.
 
 Example:
 
-  mothership:workflow:run --config=example.yaml
+  mothership:base:workflow:run --config=yourconfiguration_file.yaml
 
 Get all workflows:
 
@@ -126,7 +136,7 @@ Get all workflows:
 
 Get help for a specific workflow
 
- magerun mothership:workflow:run --config=IntexDataImport.yaml --help
+ magerun mothership:base:workflow:run --config=yourconfiguration_file.yaml --help
 
 HELP;
         $this->setHelp($help);
