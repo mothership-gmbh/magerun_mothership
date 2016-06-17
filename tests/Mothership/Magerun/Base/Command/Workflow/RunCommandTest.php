@@ -24,6 +24,7 @@ class RunCommandTest extends TestCase
 {
     public function testExecute()
     {
+        $this->markTestSkipped('Interactive');
         $application = $this->getApplication();
         $application->add(new ListCommand());
         $command = $this->getApplication()->find('mothership:base:workflow:run');
