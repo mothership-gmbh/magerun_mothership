@@ -13,7 +13,7 @@ trap cleanup EXIT
 
 BUILDENV="/srv/extension.vm";
 
-MAGENTO_DB_HOST="127.0.0.1";
+MAGENTO_DB_HOST="link_mariadb";
 MAGENTO_DB_PORT="3306";
 MAGENTO_DB_USER="super";
 MAGENTO_DB_PASS="super123";
@@ -21,6 +21,8 @@ MAGENTO_DB_NAME="extension";
 MAGENTO_DB_ALLOWSAME="0";
 
 CWD=$(pwd)
+
+magerun self-update
 
 
 # Use the local mothership patched one
@@ -77,6 +79,8 @@ magerun install \
 
 
 cd ${BUILDENV}
+
+export N98_MAGERUN_TEST_MAGENTO_ROOT=${BUILDENV}
 
 php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php
 php composer-setup.php
