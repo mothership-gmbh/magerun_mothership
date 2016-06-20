@@ -101,7 +101,9 @@ class ResizeCommand extends AbstractCommand
         $url = \Mage::getBaseUrl('media') . 'catalog/product' . $fileName;
 
         // if the directory does not exist, create it
-        mkdir($catalog_url, 0777, true);
+        if (!file_exists($catalog_url)) {
+            mkdir($catalog_url, 0777, true);
+        }
 
         //if width empty then return original size image's URL
         if ($width != '') {
