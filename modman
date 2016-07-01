@@ -1,5 +1,4 @@
 src/lib/n98-magerun/modules/mothership_addons                   lib/n98-magerun/modules/mothership_addons
-src/app/etc/mothership/environments/environment_vm.php.example  app/etc/mothership/environments/environment_vm.php.example
 
 src/app/etc/mothership/workflows/Example.yaml                   app/etc/mothership/workflows/Example.yaml
 
