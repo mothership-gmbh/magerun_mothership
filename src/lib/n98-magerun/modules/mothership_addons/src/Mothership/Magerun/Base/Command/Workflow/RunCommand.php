@@ -44,6 +44,16 @@ class RunCommand extends AbstractMagentoCommand
     protected $parsedYaml = [];
 
     protected $description = 'Run a workflow';
+    /**
+     * @var \Symfony\Component\Console\Output\OutputInterface $output
+     */
+    protected $oputput;
+    /**
+     * Filepath for the lock file if the option "lock" is set
+     *
+     * @var string
+     */
+    protected $lockFilePath;
 
     /**
      * Command config
@@ -58,6 +68,15 @@ class RunCommand extends AbstractMagentoCommand
 
             $explodedConfig = explode("=", $GLOBALS['argv'][2]);
             $workflowName = isset($explodedConfig[1]) ? explode(".", $explodedConfig[1]) : '';
+
+            $this->addOption(
+                'lock',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                "Path to a file used for a lock mechanism. If it is set then the command will wait until the file lock is not present anymore
+                and then get the lock and start. This is usefull to run two or more concurrent command"
+            );
+
             /**
              * Add the option to add this to a queue. Requires a queue configuration
              */
@@ -197,6 +216,16 @@ HELP;
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         parent::execute($input, $output);
+        $this->output = $output;
+        if ($input->hasOption('lock')) {
+            declare(ticks = 1);
+            $this->lockFilePath = $input->getOption('lock');
+            pcntl_signal(SIGINT,  "handleSygnal");
+            pcntl_signal(SIGTERM, "handleSygnal");
+            pcntl_signal(SIGHUP,  "handleSygnal");
+            pcntl_signal(SIGKILL, "handleSygnal");
+            $this->lock();
+        }
 
         $input_path = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/workflows';
         $filename = $this->detectConfiguration($input, $output, $input_path);
@@ -219,6 +248,10 @@ HELP;
             $configuration = Yaml::parse(file_get_contents($input_path . '/' . $filename));
             $stateMachine = new \Mothership\StateMachine\StateMachine($configuration);
             $stateMachine->run($this->getArguments($input, $output));
+        }
+
+        if ($input->hasOption('lock')) {
+            $this->unlock();
         }
     }
 
@@ -310,4 +343,49 @@ HELP;
 
         return $file_name;
     }
+
+    /**
+     * Try to get the lock base on $filepath
+     *
+     * @param string $filepath
+     *
+     * @retun void
+     */
+    protected function lock()
+    {
+        while (file_exists($this->lockFilePath)) {
+            $this->output->writeln("<warning>waiting for lock on file: " . $this->lockFilePath . "</warning>");
+            sleep(2);
+        }
+        $this->output->writeln("<warning>Get the lock on file: " . $this->lockFilePath . "</warning>");
+        file_put_contents($this->lockFilePath, "1");
+    }
+
+    /**
+     * Release the lock based on get $filepath
+     *
+     * @param string $filepath
+     *
+     * @return void
+     */
+    protected function unlock()
+    {
+        unlink($this->lockFilePath);
+        $this->output->writeln("<warning>Unlock on file: " . $this->lockFilePath . "</warning>");
+        exit;
+    }
+
+    /**
+     * Handle the signal from the terminal
+     *
+     * @return void
+     */
+    protected function handleSygnal($signal)
+    {
+        if($signal==SIGINT || $signal==SIGTSTP){
+            $this->output->writeln("<info>Handle signal: " . $signal . "</info>");
+            $this->unlock();
+        }
+    }
+
 }
