@@ -37,6 +37,13 @@ class ExportCommand extends AbstractMagentoCommand
             InputOption::VALUE_REQUIRED,
             'The name of the configuration'
         );
+
+        $this->addOption(
+            'separator',
+            ',',
+            InputOption::VALUE_REQUIRED,
+            'Csv Separator'
+        );
     }
 
     /**
@@ -78,7 +85,7 @@ class ExportCommand extends AbstractMagentoCommand
             $input_interface = new \Mothership\Component\Feed\Input\InputMysqlData($this->getConnection());
 
             $factory = new \Mothership\Magerun\Feed\FeedFactory($input_path . '/' . $filename, $input_interface);
-            $factory->processFeed(new OutputCsv($output_path . $filename . '.csv'));
+            $factory->processFeed(new OutputCsv($output_path . $filename . '.csv', $input->getOption('separator')));
 
             // This is my changed code
 
