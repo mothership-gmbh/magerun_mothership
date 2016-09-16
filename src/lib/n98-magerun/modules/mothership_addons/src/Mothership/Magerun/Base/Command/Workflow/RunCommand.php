@@ -52,13 +52,12 @@ class RunCommand extends AbstractMagentoCommand
      */
     protected function configure()
     {
-         parent::configure();
+        parent::configure();
 
         if (isset($GLOBALS['argv'][2])) {
 
             $explodedConfig = explode("=", $GLOBALS['argv'][2]);
-            $workflowName   = explode(".", $explodedConfig[1]);
-
+            $workflowName = isset($explodedConfig[1]) ? explode(".", $explodedConfig[1]) : '';
             /**
              * Add the option to add this to a queue. Requires a queue configuration
              */
@@ -143,7 +142,7 @@ HELP;
     }
 
     /**
-     * @param \Symfony\Component\Console\Input\InputInterface   $input
+     * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      */
     protected function interact(InputInterface $input, OutputInterface $output)
@@ -190,7 +189,7 @@ HELP;
     /**
      * The command
      *
-     * @param \Symfony\Component\Console\Input\InputInterface   $input
+     * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      *
      * @return int|void
@@ -200,7 +199,7 @@ HELP;
         parent::execute($input, $output);
 
         $input_path = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/workflows';
-        $filename   = $this->detectConfiguration($input, $output, $input_path);
+        $filename = $this->detectConfiguration($input, $output, $input_path);
 
         if ($input->hasOption('queue') && $input->getOption('queue')) {
             /**
@@ -208,7 +207,7 @@ HELP;
              */
             $args = array_merge([
                 'workflow_path' => $this->getApplication()->getMagentoRootFolder() . '/app/etc/workflows/' . $input->getOption('config'),
-                'workflow'      => $input->getOption('config'),
+                'workflow' => $input->getOption('config'),
             ], $this->getArguments($input, $output));
 
             $this->printCommand($args, $output);
@@ -237,17 +236,19 @@ HELP;
         }
 
         $ordered = array_merge(array_flip(array('config', 'environment', 'data_type', 'range', 'root-dir', 'queue')), $data);
-        $output->writeln("\n" . '<comment>magerun mothership:workflow:run --' .  implode(' --', array_map(
-                    function ($v, $k) { return $k . '=' . $v; },
-                    $ordered,
-                    array_keys($ordered)
-                )) . '</comment>');
+        $output->writeln("\n" . '<comment>magerun mothership:workflow:run --' . implode(' --', array_map(
+                function ($v, $k) {
+                    return $k . '=' . $v;
+                },
+                $ordered,
+                array_keys($ordered)
+            )) . '</comment>');
     }
 
     /**
      * Helper method to set the arguments for the state machine
      *
-     * @param \Symfony\Component\Console\Input\InputInterface   $input
+     * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      *
      * @return array
@@ -255,23 +256,25 @@ HELP;
     protected function getArguments(
         \Symfony\Component\Console\Input\InputInterface $input,
         \Symfony\Component\Console\Output\OutputInterface $output
-    ) {
+    )
+    {
         return array_merge($input->getOptions(), [
-            'input'    => $input,
-            'output'   => $output,
+            'input' => $input,
+            'output' => $output,
             'root-dir' => $this->getApplication()->getMagentoRootFolder(),
-            'yaml'     => $this->parsedYaml
-        ]) ;
+            'yaml' => $this->parsedYaml
+        ]);
     }
 
     /**
-     * @param \Symfony\Component\Console\Input\InputInterface   $input
+     * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @param string                                            $path
+     * @param string $path
      *
      * @return string
      */
-    protected function detectConfiguration(InputInterface $input, OutputInterface $output, $path) {
+    protected function detectConfiguration(InputInterface $input, OutputInterface $output, $path)
+    {
         /**
          * If the user sets the option environment variable, then try to find it.
          */
@@ -287,13 +290,13 @@ HELP;
         } else {
             $output->writeln('<info>Scanning folder ' . $path . ' for configuration files</info>');
 
-            $environment_files = array ();
+            $environment_files = array();
             foreach (glob($path . DIRECTORY_SEPARATOR . '*.yaml') as $_file) {
-                $_part               = pathinfo($_file);
+                $_part = pathinfo($_file);
                 $environment_files[] = $_part['basename'];
             }
 
-            $dialog      = $this->getHelper('dialog');
+            $dialog = $this->getHelper('dialog');
             $environment = $dialog->select(
                 $output,
                 'Please select your feed configuration',
