@@ -80,6 +80,8 @@ class ExportCommand extends AbstractMagentoCommand
             $factory = new \Mothership\Magerun\Feed\FeedFactory($input_path . '/' . $filename, $input_interface);
             $factory->processFeed(new OutputCsv($output_path . $filename . '.csv'));
 
+            // This is my changed code
+
             $output->writeln('<comment>File saved to : ' . $output_path . $filename . '.csv' . '</comment>');
         };
     }
