@@ -23,26 +23,97 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      * @var mixed
      */
     protected $dto = [];
+    /**
+     * @var \DateTime|null
+     */
+    protected $date = null;
+
+    /**
+     * The log directory
+     *
+     * @var string
+     */
+    protected $logDir = null;
+    /**
+     * The name of the log file.
+     *
+     * @var string
+     */
+    protected $logFile = null;
+    /**
+     * The Magento root directory.
+     *
+     * @var string
+     */
+    protected $magentoRootDir = null;
 
     /**
      * The main method, which processes the state machine.
      *
-     * @param mixed $args    You might pass external logic
-     * @param bool  $saveLog If enabled, then all processed states will be
-     *                       stored and can be processed in the acceptance method
-     *                       later for debugging purpose
+     * @param mixed $args You might pass external logic
+     *                                        Important args are:
+     *                                        root-dir: magento root dir
+     *                                        log-dir: directory where to store log files
+     *                                                 if this args is set log is automatically enabled
+     *                                                 then all processed states will be
+     *                                                 stored and can be processed in the acceptance method
+     *                                                 later for debugging purpose
+     * @param bool $logIntoMagentoScheduler If enabled the workflow process will be loged into Magenzo cron schedule table
      *
      * @throws \Exception
      *
      * @return void|mixed
      */
-    public function run($args = [], $saveLog = false)
+    public function run($args = [], $logIntoMagentoScheduler = true)
     {
-        if (array_key_exists('output', $args)) {
-            $this->output = $args['output'];
+        $this->date = new \DateTime();
+        $saveLog = false;
+        $this->output = array_key_exists('output', $args) ? $args['output'] : null;
+        $this->input = array_key_exists('input', $args) ? $args['input'] : null;
+        $this->magentoRootDir = array_key_exists('root-dir', $args) ? $args['root-dir'] : null;
+
+        /**
+         * The log directory is mandatory argument. We will use the helper
+         * to initially set the log path
+         */
+        if (array_key_exists('log-dir', $args)) {
+            $this->logDir = $args['log-dir'];
+            $this->initLogFile($args['log-dir']);
+            $saveLog = true;
+        }
+
+        $this->setInitialState();
+        $lastInsertId = 0;
+        if ($logIntoMagentoScheduler) {
+            $sql = "INSERT INTO cron_schedule
+                                (job_code,
+                                 status,
+                                 created_at,
+                                 executed_at)
+                    VALUES     (:job_code,
+                                :status,
+                                :created_at,
+                                :executed_at)";
+            $data = $this->exec($sql, [
+                "job_code" => get_class($this),
+                "status" => "running",
+                "created_at" => date('Y-m-d H:m:i'),
+                "executed_at" => date('Y-m-d H:m:i')
+            ]);
+            $lastInsertId = $data['pdo']->lastInsertId();
         }
 
         parent::run($args, $saveLog);
+
+        if ($logIntoMagentoScheduler && $lastInsertId > 0) {
+            $sql = "UPDATE cron_schedule set status='success',finished_at=:finished_at WHERE schedule_id=:schedule_id";
+            $data = $this->exec($sql, [
+                "schedule_id" => $lastInsertId,
+                "finished_at" => date('Y-m-d H:m:i'),
+            ]);
+        }
+
+
     }
 
     /**
@@ -57,19 +128,24 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      *
      * @link http://php.net/manual/de/pdostatement.fetchall.php
      *
-     * @param string $sql  A valid SQL query string (with variables)
-     * @param array  $args An array with configuration values
+     * @param string $sql A valid SQL query string (with variables)
+     * @param array $args An array with configuration values
      * @parma int    $pdoFetchType Default is \PDO::FETCH_ASSOC
      *
      * @return array
      */
     public function fetchAll(string $sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC): array
     {
-        $pdo  = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
 
-        return $stmt->fetchAll($pdoFetchType);
+        $data = $stmt->fetchAll($pdoFetchType);
+        $stmt->closeCursor();
+        $stmt = null;
+        $pdo = null;
+
+        return $data;
     }
 
     /**
@@ -77,37 +153,43 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      *
      * @link http://php.net/manual/de/pdostatement.fetch.php
      *
-     * @param string $sql  A valid SQL query string (with variables)
-     * @param array  $args An array with configuration values
+     * @param string $sql A valid SQL query string (with variables)
+     * @param array $args An array with configuration values
      * @parma int    $pdoFetchType Default is \PDO::FETCH_ASSOC
      *
      * @return array
      */
     public function fetch(string $sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC): array
     {
-        $pdo  = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
 
-        return $stmt->fetch($pdoFetchType);
+        $data = $stmt->fetch($pdoFetchType);
+        $stmt->closeCursor();
+        $stmt = null;
+        $pdo = null;
+
+        return $data;
     }
 
     /**
      * Wrapper for execute a command to the MySQL database.
      *
-     * @param string $sql  A valid SQL query string (with variables)
-     * @param array  $args An array with configuration values
+     * @param string $sql A valid SQL query string (with variables)
+     * @param array $args An array with configuration values
      *
      * @return array the resultset
      */
     public function exec(string $sql, array $args = [])
     {
-        $pdo  = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
+
         return [
             'stmt' => $stmt,
-            'pdo'  => $pdo
+            'pdo' => $pdo
         ];
     }
 
@@ -137,7 +219,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
     {
         if (null !== $this->output && $this->output->isVeryVerbose()) {
 
-            $tab             = "";
+            $tab = "";
             $time_elapsed_us = number_format(microtime(true) - $this->microtime, 10);
 
             $level = 'comment';
@@ -203,8 +285,9 @@ abstract class AbstractWorkflow extends WorkflowAbstract
 
     /**
      * Informative non essential messages
-     * 
+     *
      * @param string $message
+     * @param bool $onLogFile if enabled the message will be print also into log file
      *
      * @return void
      */
@@ -228,4 +311,44 @@ abstract class AbstractWorkflow extends WorkflowAbstract
             $this->output->writeln("<fg=white;bg=black>" . $message . "</>");
         }
     }
+
+    /**
+     * Set the logfile base on a path. Also create the log directory if it does not exist
+     *
+     * @param string $logFile
+     *
+     * @return void
+     */
+    protected function initLogFile($path)
+    {
+        if (false === file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        $date = new \DateTime();
+        $path = $path . DIRECTORY_SEPARATOR . $date->format('Ymd') . '.log';
+
+        //check if i'm using a relative or absolute path
+        if (substr($path, 0, 1) != '/') {
+            $this->logFile = getcwd() . '/' . $path;
+        } else {
+            $this->logFile = $path;
+        }
+    }
+
+    /**
+     * Add a new log
+     *
+     * @param array $message Pass the message as an array
+     *
+     * @return void
+     */
+    protected function log(array $message)
+    {
+        $date = $this->date->format('d-m-Y H:i:s');
+
+        $message = array_merge([$date], $message);
+        error_log(implode("\t", $message) . "\n", 3, $this->logFile);
+    }
+
 }
