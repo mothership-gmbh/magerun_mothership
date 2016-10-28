@@ -12,3 +12,6 @@ src/shell/queue.php                                             shell/queue.php
 
 tests                                                           tests
 phpunit.xml.dist                                                phpunit.xml
+
+src/app/etc/modules/Mothership_Magerun.xml                      app/etc/modules/Mothership_Magerun.xml
+src/app/code/local/Mothership/Magerun                           app/code/local/Mothership/Magerun
