@@ -57,7 +57,7 @@ class RunCommand extends AbstractMagentoCommand
         if (isset($GLOBALS['argv'][2])) {
 
             $explodedConfig = explode("=", $GLOBALS['argv'][2]);
-            $workflowName = isset($explodedConfig[1]) ? explode(".", $explodedConfig[1]) : '';
+            $workflowName = isset($explodedConfig[1]) ? explode(".", $explodedConfig[1])[0] : '';
             /**
              * Add the option to add this to a queue. Requires a queue configuration
              */
@@ -82,7 +82,7 @@ class RunCommand extends AbstractMagentoCommand
                 'l',
                 2,
                 'The log directory. Specify a relative path to ' . getcwd(),
-                getcwd() . '/var/log/workflows/' . $workflowName[0]
+                getcwd() . '/var/log/workflows/' . $workflowName
             );
 
             if (array_key_exists(1, $explodedConfig) && strpos($explodedConfig[1], 'yaml') !== false) {
