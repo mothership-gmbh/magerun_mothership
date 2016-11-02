@@ -134,7 +134,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      *
      * @return array
      */
-    public function fetchAll(string $sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC): array
+    public function fetchAll($sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC)
     {
         $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
@@ -148,6 +148,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
         return $data;
     }
 
+
     /**
      * Wrapper for doing query to the MySQL database.
      *
@@ -159,7 +160,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      *
      * @return array
      */
-    public function fetch(string $sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC): array
+    public function fetch($sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC)
     {
         $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
@@ -170,7 +171,11 @@ abstract class AbstractWorkflow extends WorkflowAbstract
         $stmt = null;
         $pdo = null;
 
-        return $data;
+        if (false === empty($data)) {
+            return $data;
+        }
+
+        return [];
     }
 
     /**
@@ -181,7 +186,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      *
      * @return array the resultset
      */
-    public function exec(string $sql, array $args = [])
+    public function exec($sql, array $args = [])
     {
         $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
@@ -346,6 +351,13 @@ abstract class AbstractWorkflow extends WorkflowAbstract
     protected function log(array $message)
     {
         $date = $this->date->format('d-m-Y H:i:s');
+
+        if (is_null($this->logFile) && isset($this->args['logFile'])) {
+            $this->logFile = $this->args['logFile'];
+        }
+        if (is_null($this->logFile)) {
+            return;
+        }
 
         $message = array_merge([$date], $message);
         error_log(implode("\t", $message) . "\n", 3, $this->logFile);
