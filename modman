@@ -11,7 +11,11 @@ src/lib/Mothership/Magerun                                      lib/Mothership/M
 src/shell/queue.php                                             shell/queue.php
 
 tests                                                           tests
-phpunit.xml.dist                                                phpunit.xml
+
+# This should be replaced by using bash copy as the responsibility of modman
+# is to copy all files to the production environment. By linking the phpunit configuration
+# to the dev environment you assume that this will be part of your productive code.
+# phpunit.xml.dist                                                phpunit.xml
 
 src/app/etc/modules/Mothership_Magerun.xml                      app/etc/modules/Mothership_Magerun.xml
 src/app/code/local/Mothership/Magerun                           app/code/local/Mothership/Magerun
