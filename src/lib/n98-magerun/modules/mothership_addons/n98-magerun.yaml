@@ -1,6 +1,5 @@
-autoloaders:
-  Mothership_Addons: %module%/src
-  Mothership\Magerun\Base: %module%/src
+autoloaders_psr4:
+  Mothership\: %root%/lib/Mothership
 
 commands:
   customCommands:
