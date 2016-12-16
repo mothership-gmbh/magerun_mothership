@@ -10,7 +10,7 @@ src/lib/Mothership/Magerun                                      lib/Mothership/M
 
 src/shell/queue.php                                             shell/queue.php
 
-tests                                                           tests
+#tests                                                          #tests
 
 # This should be replaced by using bash copy as the responsibility of modman
 # is to copy all files to the production environment. By linking the phpunit configuration
