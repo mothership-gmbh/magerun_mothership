@@ -7,6 +7,7 @@
  */
 namespace Mothership\Magerun\Base\Command\Workflow;
 
+use Mothership\Exception\Exception;
 use Mothership\StateMachine\WorkflowAbstract;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Yaml\Yaml;
@@ -53,6 +54,8 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     protected $magentoRootDir = null;
 
+    protected $yaml = null;
+
     /**
      * The main method, which processes the state machine.
      *
@@ -64,7 +67,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      *                                                 then all processed states will be
      *                                                 stored and can be processed in the acceptance method
      *                                                 later for debugging purpose
-     * @param bool  $logIntoMagentoScheduler           If enabled the workflow process will be loged into Magenzo cron schedule table
+     * @param bool  $logIntoMagentoScheduler           If enabled the workflow process will be loged into Magento cron schedule table
      *
      * @throws \Exception
      *
@@ -77,6 +80,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
         $this->output         = array_key_exists('output', $args) ? $args['output'] : null;
         $this->input          = array_key_exists('input', $args) ? $args['input'] : null;
         $this->magentoRootDir = array_key_exists('root-dir', $args) ? $args['root-dir'] : null;
+        $this->yaml           = $args['yaml'];
 
         /**
          * The log directory is mandatory argument. We will use the helper
@@ -87,6 +91,8 @@ abstract class AbstractWorkflow extends WorkflowAbstract
             $this->initLogFile($args['log-dir']);
             $saveLog = true;
         }
+
+        $this->loadContainer();
 
         $this->setInitialState();
         $lastInsertId = 0;
@@ -119,8 +125,6 @@ abstract class AbstractWorkflow extends WorkflowAbstract
                 "finished_at" => date('Y-m-d H:m:i'),
             ]);
         }
-
-
     }
 
     /**
@@ -431,14 +435,31 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     public function loadContainer(array $definitions = [])
     {
-        $workflow = $this->vars['class']['workflows'];
-        foreach ($workflow as $identifier => $configuration) {
-            $configurationFile = sprintf('%s%s%s', $this->magentoRootDir, '/', $configuration);
-            if (file_exists($configurationFile)) {
-                $parsedConfigurations     = Yaml::parse(file_get_contents($configurationFile));
-                $definitions[$identifier] = function () use ($parsedConfigurations) {
-                    return new \Mothership\StateMachine\StateMachine($parsedConfigurations);
-                };
+        if (null !== $this->container) return;
+
+        /**
+         * The database connection is used in pretty every workflow. Therefore it is defined as default
+         *
+         * @return mixed
+         */
+        $definitions['\PDO'] = function () {
+            return \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        };
+
+        /**
+         * The workflow configuration will be loaded dynamically if this is set in the yaml configuration file.
+         */
+        if (array_key_exists('workflows', $this->vars['class'])) {
+            foreach ($this->vars['class']['workflows'] as $identifier => $configuration) {
+                $configurationFile = sprintf('%s%s%s', $this->magentoRootDir, '/', $configuration);
+                if (file_exists($configurationFile)) {
+                    $parsedConfigurations     = Yaml::parse(file_get_contents($configurationFile));
+                    $definitions[$identifier] = function () use ($parsedConfigurations) {
+                        return new \Mothership\StateMachine\StateMachine($parsedConfigurations);
+                    };
+                } else {
+                    throw new Exception('Configuration file for identifier ' . $identifier . ' not found. Expected: ' . $configurationFile);
+                }
             }
         }
 
