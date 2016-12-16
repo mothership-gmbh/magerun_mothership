@@ -27,6 +27,3 @@ commands:
     - Mothership\Magerun\Base\Command\Workflow\RunCommand
     - Mothership\Magerun\Base\Command\Workflow\RenderCommand
     - Mothership\Magerun\Base\Command\Workflow\ListCommand
-
-    # custom commands for the queue
-    - Mothership\Magerun\Base\Command\Queue\CleanCommand
