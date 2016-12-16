@@ -425,9 +425,11 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      *
      * This will load the image import workflow into the di container
      *
+     * @param array $definitions
+     *
      * @throws \DI\NotFoundException
      */
-    public function _loadContainer(array $definitions = [])
+    public function loadContainer(array $definitions = [])
     {
         $workflow = $this->vars['class']['workflows'];
         foreach ($workflow as $identifier => $configuration) {
@@ -447,5 +449,4 @@ abstract class AbstractWorkflow extends WorkflowAbstract
 
         $this->container = $builder->build();
     }
-
 }
