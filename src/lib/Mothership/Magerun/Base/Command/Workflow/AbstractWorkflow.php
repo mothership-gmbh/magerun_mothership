@@ -7,14 +7,21 @@
  */
 namespace Mothership\Magerun\Base\Command\Workflow;
 
+use Mothership\Exception\Exception;
 use Mothership\StateMachine\WorkflowAbstract;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * You can always use this abstract workflow as a blueprint for your implementations.
  */
 abstract class AbstractWorkflow extends WorkflowAbstract
 {
+    /**
+     * @var \DI\Container
+     */
+    protected $container;
+
     /**
      * Really simple data transfer 'object'. The current implementation of the state machine
      * is based on processing an externally available variable. Instead the dto should be an
@@ -47,18 +54,20 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     protected $magentoRootDir = null;
 
+    protected $yaml = null;
+
     /**
      * The main method, which processes the state machine.
      *
-     * @param mixed $args You might pass external logic
-     *                                        Important args are:
-     *                                        root-dir: magento root dir
-     *                                        log-dir: directory where to store log files
+     * @param mixed $args                              You might pass external logic
+     *                                                 Important args are:
+     *                                                 root-dir: magento root dir
+     *                                                 log-dir: directory where to store log files
      *                                                 if this args is set log is automatically enabled
      *                                                 then all processed states will be
      *                                                 stored and can be processed in the acceptance method
      *                                                 later for debugging purpose
-     * @param bool $logIntoMagentoScheduler If enabled the workflow process will be loged into Magenzo cron schedule table
+     * @param bool  $logIntoMagentoScheduler           If enabled the workflow process will be loged into Magento cron schedule table
      *
      * @throws \Exception
      *
@@ -66,11 +75,12 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     public function run($args = [], $logIntoMagentoScheduler = true)
     {
-        $this->date = new \DateTime();
-        $saveLog = false;
-        $this->output = array_key_exists('output', $args) ? $args['output'] : null;
-        $this->input = array_key_exists('input', $args) ? $args['input'] : null;
+        $this->date           = new \DateTime();
+        $saveLog              = false;
+        $this->output         = array_key_exists('output', $args) ? $args['output'] : null;
+        $this->input          = array_key_exists('input', $args) ? $args['input'] : null;
         $this->magentoRootDir = array_key_exists('root-dir', $args) ? $args['root-dir'] : null;
+        $this->yaml           = $args['yaml'];
 
         /**
          * The log directory is mandatory argument. We will use the helper
@@ -82,10 +92,13 @@ abstract class AbstractWorkflow extends WorkflowAbstract
             $saveLog = true;
         }
 
+        $this->loadContainer();
+
         $this->setInitialState();
         $lastInsertId = 0;
         if ($logIntoMagentoScheduler) {
-            $sql = "INSERT INTO cron_schedule
+            $sql
+                          = "INSERT INTO cron_schedule
                                 (job_code,
                                  status,
                                  created_at,
@@ -94,11 +107,11 @@ abstract class AbstractWorkflow extends WorkflowAbstract
                                 :status,
                                 :created_at,
                                 :executed_at)";
-            $data = $this->exec($sql, [
-                "job_code" => get_class($this),
-                "status" => "running",
-                "created_at" => date('Y-m-d H:m:i'),
-                "executed_at" => date('Y-m-d H:m:i')
+            $data         = $this->exec($sql, [
+                "job_code"    => get_class($this),
+                "status"      => "running",
+                "created_at"  => date('Y-m-d H:m:i'),
+                "executed_at" => date('Y-m-d H:m:i'),
             ]);
             $lastInsertId = $data['pdo']->lastInsertId();
         }
@@ -107,13 +120,11 @@ abstract class AbstractWorkflow extends WorkflowAbstract
 
         if ($logIntoMagentoScheduler && $lastInsertId > 0) {
             $sql = "UPDATE cron_schedule set status='success',finished_at=:finished_at WHERE schedule_id=:schedule_id";
-            $data = $this->exec($sql, [
+            $this->exec($sql, [
                 "schedule_id" => $lastInsertId,
                 "finished_at" => date('Y-m-d H:m:i'),
             ]);
         }
-
-
     }
 
     /**
@@ -126,24 +137,25 @@ abstract class AbstractWorkflow extends WorkflowAbstract
     /**
      * Wrapper for doing query to the MySQL database.
      *
-     * @link http://php.net/manual/de/pdostatement.fetchall.php
+     * @link  http://php.net/manual/de/pdostatement.fetchall.php
      *
-     * @param string $sql A valid SQL query string (with variables)
-     * @param array $args An array with configuration values
+     * @param string $sql  A valid SQL query string (with variables)
+     * @param array  $args An array with configuration values
+     *
      * @parma int    $pdoFetchType Default is \PDO::FETCH_ASSOC
      *
      * @return array
      */
     public function fetchAll($sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC)
     {
-        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo  = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
 
         $data = $stmt->fetchAll($pdoFetchType);
         $stmt->closeCursor();
         $stmt = null;
-        $pdo = null;
+        $pdo  = null;
 
         return $data;
     }
@@ -152,24 +164,25 @@ abstract class AbstractWorkflow extends WorkflowAbstract
     /**
      * Wrapper for doing query to the MySQL database.
      *
-     * @link http://php.net/manual/de/pdostatement.fetch.php
+     * @link  http://php.net/manual/de/pdostatement.fetch.php
      *
-     * @param string $sql A valid SQL query string (with variables)
-     * @param array $args An array with configuration values
+     * @param string $sql  A valid SQL query string (with variables)
+     * @param array  $args An array with configuration values
+     *
      * @parma int    $pdoFetchType Default is \PDO::FETCH_ASSOC
      *
      * @return array
      */
     public function fetch($sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC)
     {
-        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo  = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
 
         $data = $stmt->fetch($pdoFetchType);
         $stmt->closeCursor();
         $stmt = null;
-        $pdo = null;
+        $pdo  = null;
 
         if (false === empty($data)) {
             return $data;
@@ -181,20 +194,20 @@ abstract class AbstractWorkflow extends WorkflowAbstract
     /**
      * Wrapper for execute a command to the MySQL database.
      *
-     * @param string $sql A valid SQL query string (with variables)
-     * @param array $args An array with configuration values
+     * @param string $sql  A valid SQL query string (with variables)
+     * @param array  $args An array with configuration values
      *
      * @return array the resultset
      */
     public function exec($sql, array $args = [])
     {
-        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo  = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
 
         return [
             'stmt' => $stmt,
-            'pdo' => $pdo
+            'pdo'  => $pdo,
         ];
     }
 
@@ -224,7 +237,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
     {
         if (null !== $this->output && $this->output->isVeryVerbose()) {
 
-            $tab = "";
+            $tab             = "";
             $time_elapsed_us = number_format(microtime(true) - $this->microtime, 10);
 
             $level = 'comment';
@@ -252,6 +265,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
     protected function convert($size)
     {
         $unit = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
+
         return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
     }
 
@@ -292,7 +306,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      * Informative non essential messages
      *
      * @param string $message
-     * @param bool $onLogFile if enabled the message will be print also into log file
+     * @param bool   $onLogFile if enabled the message will be print also into log file
      *
      * @return void
      */
@@ -363,4 +377,97 @@ abstract class AbstractWorkflow extends WorkflowAbstract
         error_log(implode("\t", $message) . "\n", 3, $this->logFile);
     }
 
+    /**
+     * Disable the Indexer.
+     */
+    protected function disableAutomaticIndexer()
+    {
+        $processes = [];
+        $indexer   = \Mage::getSingleton('index/indexer');
+        foreach ($indexer->getProcessesCollection() as $process) {
+            //store current process mode
+            $processes[$process->getIndexerCode()] = $process->getMode();
+            $this->output->writeln(
+                '<comment>Set index [' . $process->getIndexerCode() . '] -> ' . \Mage_Index_Model_Process::MODE_MANUAL
+                . '</comment>'
+            );
+
+            if ($process->getMode() != \Mage_Index_Model_Process::MODE_MANUAL) {
+                $process->setMode(\Mage_Index_Model_Process::MODE_MANUAL)->save();
+            }
+        }
+    }
+
+    /**
+     * Enable the Indexer.
+     */
+    protected function enableAutomaticIndexer()
+    {
+        $processes = [];
+        $indexer   = \Mage::getSingleton('index/indexer');
+        foreach ($indexer->getProcessesCollection() as $process) {
+            //store current process mode
+            $processes[$process->getIndexerCode()] = $process->getMode();
+            //set it to manual, if not manual yet.
+            $this->output->writeln(
+                '<comment>Set index [' . $process->getIndexerCode() . '] -> '
+                . \Mage_Index_Model_Process::MODE_REAL_TIME . '</comment>'
+            );
+
+            if ($process->getMode() != \Mage_Index_Model_Process::MODE_REAL_TIME) {
+                $process->setMode(\Mage_Index_Model_Process::MODE_REAL_TIME)->save();
+            }
+        }
+    }
+
+    /**
+     * You can pass required dependent workflows in the configuration file.
+     * Example:
+     *
+     * workflows:
+     *   WorkflowImageImport:  app/etc/mothership/workflows/ProductsImageImport.yaml
+     *
+     * This will load the image import workflow into the di container
+     *
+     * @param array $definitions
+     *
+     * @throws \DI\NotFoundException
+     */
+    public function loadContainer(array $definitions = [])
+    {
+        if (null !== $this->container) return;
+
+        /**
+         * The database connection is used in pretty every workflow. Therefore it is defined as default
+         *
+         * @return mixed
+         */
+        $definitions['\PDO'] = function () {
+            return \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        };
+
+        /**
+         * The workflow configuration will be loaded dynamically if this is set in the yaml configuration file.
+         */
+        if (array_key_exists('workflows', $this->vars['class'])) {
+            foreach ($this->vars['class']['workflows'] as $identifier => $configuration) {
+                $configurationFile = sprintf('%s%s%s', $this->magentoRootDir, '/', $configuration);
+                if (file_exists($configurationFile)) {
+                    $parsedConfigurations     = Yaml::parse(file_get_contents($configurationFile));
+                    $definitions[$identifier] = function () use ($parsedConfigurations) {
+                        return new \Mothership\StateMachine\StateMachine($parsedConfigurations);
+                    };
+                } else {
+                    throw new Exception('Configuration file for identifier ' . $identifier . ' not found. Expected: ' . $configurationFile);
+                }
+            }
+        }
+
+        $builder = new \DI\ContainerBuilder();
+        $builder->addDefinitions(
+            $definitions
+        );
+
+        $this->container = $builder->build();
+    }
 }
