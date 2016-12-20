@@ -81,6 +81,13 @@ abstract class AbstractWorkflow extends WorkflowAbstract
         $this->input          = array_key_exists('input', $args) ? $args['input'] : null;
         $this->magentoRootDir = array_key_exists('root-dir', $args) ? $args['root-dir'] : null;
         $this->yaml           = $args['yaml'];
+        
+        /**
+         * This is required for the initial arguments.
+         * Do not remove this line. And if you want to refactor it,
+         * build a test case with a subsequent workflow
+         */
+        $this->args           = $args;
 
         /**
          * The log directory is mandatory argument. We will use the helper
