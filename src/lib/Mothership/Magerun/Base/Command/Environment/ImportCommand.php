@@ -105,7 +105,7 @@ class ImportCommand extends AbstractMagentoCommand
 
 
             $this->writeSection($output, 'Applying configuration');
-            $config = File::loadConfig($file_name);
+            $config = include $file_name;
 
             $table = array();
             foreach ($config as $path => $data) {
