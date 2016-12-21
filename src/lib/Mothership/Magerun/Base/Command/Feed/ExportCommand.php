@@ -13,16 +13,13 @@ use Mothership\Component\Feed\Output\OutputCsv;
 use \Mothership\Magerun\Base\Command\AbstractMagentoCommand;
 
 /**
- * Class CleanCommand
+ * Class ExportCommand
  *
- * @category  Mothership
- * @package   Mothership_ExportCommand
- * @author    Don Bosco van Hoi <vanhoi@mothership.de>
- * @copyright 2015 Mothership GmbH
- * @link      http://www.mothership.de/
  */
 class ExportCommand extends AbstractMagentoCommand
 {
+    protected $description = 'Run the feed generation.';
+
     /**
      * Command config
      *
@@ -33,21 +30,22 @@ class ExportCommand extends AbstractMagentoCommand
         parent::configure();
         $this->addOption(
             'config',
-            null,
+            'c',
             InputOption::VALUE_REQUIRED,
             'The name of the configuration'
         );
 
         $this->addOption(
             'separator',
-            ',',
+            's',
             InputOption::VALUE_REQUIRED,
-            'Csv Separator'
+            'CSV Separator',
+            ','
         );
     }
 
     /**
-     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Input\InputInterface   $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      *
      * @return int|void
@@ -56,41 +54,32 @@ class ExportCommand extends AbstractMagentoCommand
         \Symfony\Component\Console\Input\InputInterface $input,
         \Symfony\Component\Console\Output\OutputInterface $output
     ) {
-        $this->detectMagento($output);
-        if ($this->initMagento()) {
 
+        parent::execute($input, $output);
 
-            $input_path  = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/feeds';
-            $output_path = $this->getApplication()->getMagentoRootFolder() . '/media/feeds/';
+        $input_path  = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/feeds';
+        $output_path = $this->getApplication()->getMagentoRootFolder() . '/media/feeds/';
 
-            $filename    = $this->_detectConfiguration($input, $output, $input_path);
+        $filename = $this->_detectConfiguration($input, $output, $input_path);
 
-            /**
-             * Crucial as this method depends on the composer vendor library or
-             * psr-0/4 support in general
-             */
-            \Mage::dispatchEvent('add_spl_autoloader');
+        /**
+         * Initialize the database settings and store them in a seperate array
+         * which is used to overwrite the database configuration in the feed configuration file later
+         */
+        $this->detectDbSettings($output);
 
-            /**
-             * Initialize the database settings and store them in a seperate array
-             * which is used to overwrite the database configuration in the feed configuration file later
-             */
-            $this->detectDbSettings($output);
+        if (!file_exists($input_path . '/' . $filename)) {
+            throw new \Exception('File ' . $input_path . '/' . $filename . ' does not exist');
+        }
 
+        $input_interface = new \Mothership\Component\Feed\Input\InputMysqlData($this->getConnection());
 
-            if (!file_exists($input_path . '/' . $filename)) {
-                throw new \Exception('File ' . $input_path . '/' . $filename . ' does not exist');
-            }
+        $factory = new \Mothership\Magerun\Base\Feed\FeedFactory($input_path . '/' . $filename, $input_interface);
+        $factory->processFeed(new OutputCsv($output_path . $filename . '.csv', $input->getOption('separator')));
 
-            $input_interface = new \Mothership\Component\Feed\Input\InputMysqlData($this->getConnection());
+        // This is my changed code
 
-            $factory = new \Mothership\Magerun\Feed\FeedFactory($input_path . '/' . $filename, $input_interface);
-            $factory->processFeed(new OutputCsv($output_path . $filename . '.csv', $input->getOption('separator')));
-
-            // This is my changed code
-
-            $output->writeln('<comment>File saved to : ' . $output_path . $filename . '.csv' . '</comment>');
-        };
+        $output->writeln('<comment>File saved to : ' . $output_path . $filename . '.csv' . '</comment>');
     }
 
     /**
@@ -103,8 +92,8 @@ class ExportCommand extends AbstractMagentoCommand
     protected function _detectConfiguration(
         \Symfony\Component\Console\Input\InputInterface $input,
         \Symfony\Component\Console\Output\OutputInterface $output,
-        $path)
-    {
+        $path
+    ) {
         /**
          * If the user sets the option environment variable, then try to find it.
          */
@@ -120,13 +109,13 @@ class ExportCommand extends AbstractMagentoCommand
         } else {
             $output->writeln('<info>Scanning folder ' . $path . ' for configuration files</info>');
 
-            $environment_files = array();
+            $environment_files = [];
             foreach (glob($path . DIRECTORY_SEPARATOR . '*.yaml') as $_file) {
-                $_part          = pathinfo($_file);
+                $_part               = pathinfo($_file);
                 $environment_files[] = $_part['basename'];
             }
 
-            $dialog = $this->getHelper('dialog');
+            $dialog      = $this->getHelper('dialog');
             $environment = $dialog->select(
                 $output,
                 'Please select your feed configuration',
@@ -136,6 +125,7 @@ class ExportCommand extends AbstractMagentoCommand
             $output->writeln('You have just selected: ' . $environment_files[$environment]);
             $file_name = $environment_files[$environment];
         }
+
         return $file_name;
     }
 }

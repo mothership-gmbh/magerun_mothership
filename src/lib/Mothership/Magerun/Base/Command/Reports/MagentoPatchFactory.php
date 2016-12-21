@@ -7,7 +7,7 @@
  */
 namespace Mothership\Magerun\Base\Command\Reports;
 
-use Mothership\Magerun\Patch\AbstractMagentoPatchFactory;
+use Mothership\Magerun\Base\Patch\AbstractMagentoPatchFactory;
 
 /**
  * Class AbstractMagentoPatchFactory
