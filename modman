@@ -4,11 +4,10 @@ src/app/etc/modules/Mothership_Addons.xml                       app/etc/modules/
 src/app/code/local/Mothership/Addons                            app/code/local/Mothership/Addons
 
 src/media/feeds/readme.md                                       media/feeds/readme.md
-src/lib/Mothership/Magerun                                      lib/Mothership/Magerun
+
+src/lib/Mothership/Magerun/Base                                 lib/Mothership/Magerun/Base
 
 src/shell/queue.php                                             shell/queue.php
-
-#tests                                                          #tests
 
 # This should be replaced by using bash copy as the responsibility of modman
 # is to copy all files to the production environment. By linking the phpunit configuration
