@@ -58,16 +58,7 @@ class RunCommand extends AbstractMagentoCommand
 
             $explodedConfig = explode("=", $GLOBALS['argv'][2]);
             $workflowName = isset($explodedConfig[1]) ? explode(".", $explodedConfig[1])[0] : '';
-            /**
-             * Add the option to add this to a queue. Requires a queue configuration
-             */
-            $this->addOption(
-                'queue',
-                null,
-                1,
-                'Process the workflow in php-resque. <comment>Enable the queue in the Magento backend!</comment>'
-            );
-
+ 
             // add the config
             $this->addOption(
                 'config',
@@ -201,25 +192,9 @@ HELP;
         $input_path = $this->getApplication()->getMagentoRootFolder() . '/app/etc/mothership/workflows';
         $filename = $this->detectConfiguration($input, $output, $input_path);
 
-        if ($input->hasOption('queue') && $input->getOption('queue')) {
-            /**
-             * Add the job for the incremental update
-             */
-            $args = array_merge([
-                'workflow_path' => $this->getApplication()->getMagentoRootFolder() . '/app/etc/workflows/' . $input->getOption('config'),
-                'workflow' => $input->getOption('config'),
-            ], $this->getArguments($input, $output));
-
-            $this->printCommand($args, $output);
-
-            // TODO: Check if queue is enabled
-            \Resque::setBackend(\Mage::getStoreConfig('mothership_magerun/queue/host'));
-            \Resque::enqueue(\Mage::getStoreConfig('mothership_magerun/queue/name'), '\Mothership\Magerun\Queue\Jobs\General', $args, true);
-        } else {
-            $configuration = Yaml::parse(file_get_contents($input_path . '/' . $filename));
-            $stateMachine = new \Mothership\StateMachine\StateMachine($configuration);
-            $stateMachine->run($this->getArguments($input, $output));
-        }
+        $configuration = Yaml::parse(file_get_contents($input_path . '/' . $filename));
+        $stateMachine = new \Mothership\StateMachine\StateMachine($configuration);
+        $stateMachine->run($this->getArguments($input, $output));
     }
 
     /**
