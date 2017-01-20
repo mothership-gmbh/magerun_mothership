@@ -98,6 +98,22 @@ abstract class AbstractWorkflow extends WorkflowAbstract
             $this->initLogFile($args['log-dir']);
             $saveLog = true;
         }
+        
+              /**
+         * Use the Table to display all arguments
+         */
+        $table = new Table($args['output']);
+        $table->setHeaders(['key', 'value']);
+        $argsTable = [];
+        foreach ($args as $key => $arg) {
+            if (!in_array($key,
+                ['output', 'yaml', 'quiet', 'ansi', 'no-ansi', 'skip-config', 'skip-root-check', 'help', 'interactive', 'version', 'no-interaction'])
+            ) {
+                $argsTable[] = [$key, $arg];
+            }
+        }
+        $table->setRows($argsTable);
+        $table->render();
 
         $this->loadContainer();
 
