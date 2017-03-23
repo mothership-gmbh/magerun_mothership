@@ -88,8 +88,13 @@ abstract class AbstractWorkflow extends WorkflowAbstract
         $this->magentoRootDir = array_key_exists('root-dir', $args) ? $args['root-dir'] : null;
         $this->yaml = array_key_exists('yaml', $args) ? $args['yaml'] : [];
 
-        if ($this->input->getOption('disable-logs') || (array_key_exists('disable-logs', $this->yaml['class']))) {
+
+        if ($this->input->getOption('disable-logs')) {
             $this->areLogsDisabled = true;
+        } else if (array_key_exists('class', $this->yaml)) {
+            if(array_key_exists('disable-logs', $this->yaml['class'])){
+                $this->areLogsDisabled = true;
+            }
         }
 
         /**
