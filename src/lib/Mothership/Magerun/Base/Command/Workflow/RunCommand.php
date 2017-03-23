@@ -80,7 +80,7 @@ class RunCommand extends AbstractMagentoCommand
                 'disable-logs',
                 'ds',
                 InputOption::VALUE_OPTIONAL,
-                'disable explicity logs, if not set, logs are automatically enabled'
+                'disable explicity logs, if not set and set to true, logs are automatically enabled'
             );
 
             if (array_key_exists(1, $explodedConfig) && strpos($explodedConfig[1], 'yaml') !== false) {
