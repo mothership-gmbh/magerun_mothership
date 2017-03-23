@@ -58,7 +58,7 @@ class RunCommand extends AbstractMagentoCommand
 
             $explodedConfig = explode("=", $GLOBALS['argv'][2]);
             $workflowName = isset($explodedConfig[1]) ? explode(".", $explodedConfig[1])[0] : '';
- 
+
             // add the config
             $this->addOption(
                 'config',
@@ -74,6 +74,13 @@ class RunCommand extends AbstractMagentoCommand
                 2,
                 'The log directory. Specify a relative path to ' . getcwd(),
                 getcwd() . '/var/log/workflows/' . $workflowName
+            );
+
+            $this->addOption(
+                'disable-logs',
+                'ds',
+                InputOption::VALUE_OPTIONAL,
+                'disable explicity logs, if not set, logs are automatically enabled'
             );
 
             if (array_key_exists(1, $explodedConfig) && strpos($explodedConfig[1], 'yaml') !== false) {
