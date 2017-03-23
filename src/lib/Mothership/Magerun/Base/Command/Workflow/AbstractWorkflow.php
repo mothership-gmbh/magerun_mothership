@@ -86,9 +86,9 @@ abstract class AbstractWorkflow extends WorkflowAbstract
         $this->output = array_key_exists('output', $args) ? $args['output'] : null;
         $this->input = array_key_exists('input', $args) ? $args['input'] : null;
         $this->magentoRootDir = array_key_exists('root-dir', $args) ? $args['root-dir'] : null;
-        $this->yaml = $args['yaml'];
+        $this->yaml = array_key_exists('yaml', $args) ? $args['yaml'] : [];
 
-        if (array_key_exists('disable-logs', $this->input->getOptions()) || (array_key_exists('disable-logs',$this->yaml['class']))) {
+        if (array_key_exists('disable-logs', $this->input->getOptions()) || (array_key_exists('disable-logs', $this->yaml['class']))) {
             $this->areLogsDisabled = true;
         }
 
@@ -399,7 +399,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     protected function log(array $message)
     {
-        if(!$this->areLogsDisabled){
+        if (!$this->areLogsDisabled) {
             $date = $this->date->format('d-m-Y H:i:s');
 
             if (is_null($this->logFile) && isset($this->args['logFile'])) {
