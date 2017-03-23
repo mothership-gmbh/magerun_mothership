@@ -53,13 +53,19 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      * @var string
      */
     protected $magentoRootDir = null;
+    /**
+     * Logs are enabled by default
+     * You can disable explicitaly setting the option "--disable-logs" as from terminal line as from yaml workflow configuration
+     * @var bool
+     */
+    protected $areLogsDisabled = false;
 
     protected $yaml = null;
 
     /**
      * The main method, which processes the state machine.
      *
-     * @param mixed $args                              You might pass external logic
+     * @param mixed $args You might pass external logic
      *                                                 Important args are:
      *                                                 root-dir: magento root dir
      *                                                 log-dir: directory where to store log files
@@ -67,7 +73,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      *                                                 then all processed states will be
      *                                                 stored and can be processed in the acceptance method
      *                                                 later for debugging purpose
-     * @param bool  $logIntoMagentoScheduler           If enabled the workflow process will be loged into Magento cron schedule table
+     * @param bool $logIntoMagentoScheduler If enabled the workflow process will be loged into Magento cron schedule table
      *
      * @throws \Exception
      *
@@ -75,19 +81,23 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     public function run($args = [], $logIntoMagentoScheduler = true)
     {
-        $this->date           = new \DateTime();
-        $saveLog              = false;
-        $this->output         = array_key_exists('output', $args) ? $args['output'] : null;
-        $this->input          = array_key_exists('input', $args) ? $args['input'] : null;
+        $this->date = new \DateTime();
+        $saveLog = false;
+        $this->output = array_key_exists('output', $args) ? $args['output'] : null;
+        $this->input = array_key_exists('input', $args) ? $args['input'] : null;
         $this->magentoRootDir = array_key_exists('root-dir', $args) ? $args['root-dir'] : null;
-        $this->yaml           = $args['yaml'];
-        
+        $this->yaml = $args['yaml'];
+
+        if (array_key_exists('disable-logs', $this->input->getOptions()) || (array_key_exists('disable-logs',$this->yaml['class']))) {
+            $this->areLogsDisabled = true;
+        }
+
         /**
          * This is required for the initial arguments.
          * Do not remove this line. And if you want to refactor it,
          * build a test case with a subsequent workflow
          */
-        $this->args           = $args;
+        $this->args = $args;
 
         /**
          * The log directory is mandatory argument. We will use the helper
@@ -98,8 +108,8 @@ abstract class AbstractWorkflow extends WorkflowAbstract
             $this->initLogFile($args['log-dir']);
             $saveLog = true;
         }
-        
-              /**
+
+        /**
          * Use the Table to display all arguments
          */
         $table = new Table($args['output']);
@@ -121,7 +131,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
         $lastInsertId = 0;
         if ($logIntoMagentoScheduler) {
             $sql
-                          = "INSERT INTO cron_schedule
+                = "INSERT INTO cron_schedule
                                 (job_code,
                                  status,
                                  created_at,
@@ -130,10 +140,10 @@ abstract class AbstractWorkflow extends WorkflowAbstract
                                 :status,
                                 :created_at,
                                 :executed_at)";
-            $data         = $this->exec($sql, [
-                "job_code"    => get_class($this),
-                "status"      => "running",
-                "created_at"  => date('Y-m-d H:m:i'),
+            $data = $this->exec($sql, [
+                "job_code" => get_class($this),
+                "status" => "running",
+                "created_at" => date('Y-m-d H:m:i'),
                 "executed_at" => date('Y-m-d H:m:i'),
             ]);
             $lastInsertId = $data['pdo']->lastInsertId();
@@ -148,6 +158,8 @@ abstract class AbstractWorkflow extends WorkflowAbstract
                 "finished_at" => date('Y-m-d H:m:i'),
             ]);
         }
+
+
     }
 
     /**
@@ -162,8 +174,8 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      *
      * @link  http://php.net/manual/de/pdostatement.fetchall.php
      *
-     * @param string $sql  A valid SQL query string (with variables)
-     * @param array  $args An array with configuration values
+     * @param string $sql A valid SQL query string (with variables)
+     * @param array $args An array with configuration values
      *
      * @parma int    $pdoFetchType Default is \PDO::FETCH_ASSOC
      *
@@ -171,14 +183,14 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     public function fetchAll($sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC)
     {
-        $pdo  = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
 
         $data = $stmt->fetchAll($pdoFetchType);
         $stmt->closeCursor();
         $stmt = null;
-        $pdo  = null;
+        $pdo = null;
 
         return $data;
     }
@@ -189,8 +201,8 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      *
      * @link  http://php.net/manual/de/pdostatement.fetch.php
      *
-     * @param string $sql  A valid SQL query string (with variables)
-     * @param array  $args An array with configuration values
+     * @param string $sql A valid SQL query string (with variables)
+     * @param array $args An array with configuration values
      *
      * @parma int    $pdoFetchType Default is \PDO::FETCH_ASSOC
      *
@@ -198,14 +210,14 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     public function fetch($sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC)
     {
-        $pdo  = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
 
         $data = $stmt->fetch($pdoFetchType);
         $stmt->closeCursor();
         $stmt = null;
-        $pdo  = null;
+        $pdo = null;
 
         if (false === empty($data)) {
             return $data;
@@ -217,20 +229,20 @@ abstract class AbstractWorkflow extends WorkflowAbstract
     /**
      * Wrapper for execute a command to the MySQL database.
      *
-     * @param string $sql  A valid SQL query string (with variables)
-     * @param array  $args An array with configuration values
+     * @param string $sql A valid SQL query string (with variables)
+     * @param array $args An array with configuration values
      *
      * @return array the resultset
      */
     public function exec($sql, array $args = [])
     {
-        $pdo  = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
 
         return [
             'stmt' => $stmt,
-            'pdo'  => $pdo,
+            'pdo' => $pdo,
         ];
     }
 
@@ -260,7 +272,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
     {
         if (null !== $this->output && $this->output->isVeryVerbose()) {
 
-            $tab             = "";
+            $tab = "";
             $time_elapsed_us = number_format(microtime(true) - $this->microtime, 10);
 
             $level = 'comment';
@@ -329,7 +341,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      * Informative non essential messages
      *
      * @param string $message
-     * @param bool   $onLogFile if enabled the message will be print also into log file
+     * @param bool $onLogFile if enabled the message will be print also into log file
      *
      * @return void
      */
@@ -387,17 +399,19 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     protected function log(array $message)
     {
-        $date = $this->date->format('d-m-Y H:i:s');
+        if(!$this->areLogsDisabled){
+            $date = $this->date->format('d-m-Y H:i:s');
 
-        if (is_null($this->logFile) && isset($this->args['logFile'])) {
-            $this->logFile = $this->args['logFile'];
-        }
-        if (is_null($this->logFile)) {
-            return;
-        }
+            if (is_null($this->logFile) && isset($this->args['logFile'])) {
+                $this->logFile = $this->args['logFile'];
+            }
+            if (is_null($this->logFile)) {
+                return;
+            }
 
-        $message = array_merge([$date], $message);
-        error_log(implode("\t", $message) . "\n", 3, $this->logFile);
+            $message = array_merge([$date], $message);
+            error_log(implode("\t", $message) . "\n", 3, $this->logFile);
+        }
     }
 
     /**
@@ -406,7 +420,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
     protected function disableAutomaticIndexer()
     {
         $processes = [];
-        $indexer   = \Mage::getSingleton('index/indexer');
+        $indexer = \Mage::getSingleton('index/indexer');
         foreach ($indexer->getProcessesCollection() as $process) {
             //store current process mode
             $processes[$process->getIndexerCode()] = $process->getMode();
@@ -427,7 +441,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
     protected function enableAutomaticIndexer()
     {
         $processes = [];
-        $indexer   = \Mage::getSingleton('index/indexer');
+        $indexer = \Mage::getSingleton('index/indexer');
         foreach ($indexer->getProcessesCollection() as $process) {
             //store current process mode
             $processes[$process->getIndexerCode()] = $process->getMode();
@@ -476,7 +490,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
             foreach ($this->vars['class']['workflows'] as $identifier => $configuration) {
                 $configurationFile = sprintf('%s%s%s', $this->magentoRootDir, '/', $configuration);
                 if (file_exists($configurationFile)) {
-                    $parsedConfigurations     = Yaml::parse(file_get_contents($configurationFile));
+                    $parsedConfigurations = Yaml::parse(file_get_contents($configurationFile));
                     $definitions[$identifier] = function () use ($parsedConfigurations) {
                         return new \Mothership\StateMachine\StateMachine($parsedConfigurations);
                     };
