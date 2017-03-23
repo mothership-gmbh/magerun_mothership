@@ -119,7 +119,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
             if (!in_array($key,
                 ['output', 'yaml', 'quiet', 'ansi', 'no-ansi', 'skip-config', 'skip-root-check', 'help', 'interactive', 'version', 'no-interaction'])
             ) {
-                $argsTable[] = [$key, $arg];
+                $argsTable[] = [$key, is_array($arg) ? 'Array' : $arg];
             }
         }
         $table->setRows($argsTable);
