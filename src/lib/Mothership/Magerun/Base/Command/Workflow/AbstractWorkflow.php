@@ -241,7 +241,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     public function exec($sql, array $args = [])
     {
-        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_write')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
 
