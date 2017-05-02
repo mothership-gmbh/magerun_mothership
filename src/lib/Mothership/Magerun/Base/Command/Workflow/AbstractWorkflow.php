@@ -188,7 +188,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     public function fetchAll($sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC)
     {
-        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_write')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
 
@@ -215,7 +215,7 @@ abstract class AbstractWorkflow extends WorkflowAbstract
      */
     public function fetch($sql, array $args = [], $pdoFetchType = \PDO::FETCH_ASSOC)
     {
-        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_read')->getConnection();
+        $pdo = \Mage::getSingleton('core/resource')->getConnection('core_write')->getConnection();
         $stmt = $pdo->prepare($sql);
         $stmt->execute($args);
 
